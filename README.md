@@ -18,19 +18,20 @@ This repository is intentionally developed in stages so that each component is u
 
 The first milestone focuses on one question:
 
-**Can we train and evaluate a reproducible model that predicts current habitat suitability from environmental predictors?**
+**Can we train, evaluate, save, and reuse a reproducible model that predicts current habitat suitability from environmental predictors?**
 
 Current v0.1 capabilities:
 
 - load tabular occurrence/background data;
 - validate predictor and target columns;
 - split data into training and test sets;
-- train a `RandomForestClassifier`;
+- train a class-balanced `RandomForestClassifier`;
 - report ROC-AUC, accuracy, precision, recall, and F1;
 - rank environmental predictors by feature importance;
-- save a trained model bundle for reuse;
-- run the workflow from Python or the command line;
-- test the core training pipeline automatically with GitHub Actions.
+- save and reload a trained model bundle;
+- predict continuous habitat-suitability probabilities for new environmental rows;
+- run training and prediction from Python or the command line;
+- test the core workflow automatically with GitHub Actions.
 
 ## Roadmap
 
@@ -39,6 +40,7 @@ Current v0.1 capabilities:
 - [x] Baseline Random Forest classifier
 - [x] Model evaluation
 - [x] Feature importance
+- [x] Model persistence and prediction
 - [x] CLI entry point
 - [x] Automated tests and CI
 - [ ] Real ecological example dataset
@@ -71,6 +73,8 @@ Current v0.1 capabilities:
 - [ ] Documentation/tutorials
 - [ ] Packaged release
 
+See the detailed learning and scientific plan in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
 ## Input data format
 
 For v0.1, RangeShift AI expects a CSV containing a binary response column and numeric environmental predictors.
@@ -102,7 +106,9 @@ For development and testing:
 pip install -e ".[dev]"
 ```
 
-## Command-line example
+## Command-line usage
+
+Train and save a model:
 
 ```bash
 rangeshift train data.csv \
@@ -111,7 +117,16 @@ rangeshift train data.csv \
   --output model.joblib
 ```
 
-The command prints model-performance metrics and feature importance, then saves the fitted model bundle.
+The training command prints performance metrics and feature importance, then saves the fitted model bundle.
+
+Predict suitability for new environmental data:
+
+```bash
+rangeshift predict model.joblib future_environment.csv \
+  --output suitability_predictions.csv
+```
+
+The prediction output preserves the input rows and adds a `suitability` column containing probabilities between 0 and 1.
 
 ## Python example
 
@@ -130,6 +145,8 @@ result = train_habitat_model(
 print(result.metrics)
 print(result.feature_importance)
 ```
+
+A reproducible synthetic example is available in [`examples/train_demo.py`](examples/train_demo.py).
 
 ## Repository structure
 
