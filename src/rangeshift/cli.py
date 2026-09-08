@@ -15,6 +15,7 @@ from .prediction import load_model_bundle, predict_suitability
 from .raster import parse_layer_specs, predict_suitability_raster
 from .spatial import compare_random_and_spatial
 from .spatial_cv import spatial_cross_validate
+from .visualization import plot_suitability_map
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -68,6 +69,21 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("habitat_suitability.tif"),
     )
     raster.add_argument("--nodata", type=float, default=-9999.0)
+
+    plot_raster = subparsers.add_parser(
+        "plot-raster",
+        help="Render a high-resolution map from a suitability GeoTIFF.",
+    )
+    plot_raster.add_argument("input_raster", type=Path)
+    plot_raster.add_argument(
+        "--output",
+        type=Path,
+        default=Path("habitat_suitability.png"),
+    )
+    plot_raster.add_argument("--title", default="Predicted habitat suitability")
+    plot_raster.add_argument("--boundary", type=Path, default=None)
+    plot_raster.add_argument("--dpi", type=int, default=300)
+    plot_raster.add_argument("--cmap", default="viridis")
 
     spatial = subparsers.add_parser(
         "compare-spatial",
@@ -168,6 +184,18 @@ def main() -> None:
             "crs": result.crs,
         }
         print(json.dumps(payload, indent=2, sort_keys=True))
+        return
+
+    if args.command == "plot-raster":
+        output_path = plot_suitability_map(
+            args.input_raster,
+            args.output,
+            title=args.title,
+            boundary_path=args.boundary,
+            dpi=args.dpi,
+            cmap=args.cmap,
+        )
+        print(f"Saved suitability map: {output_path}")
         return
 
     if args.command == "compare-spatial":
