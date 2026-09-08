@@ -15,6 +15,7 @@ from rasterio.transform import from_origin
 
 from rangeshift.model import train_habitat_model
 from rangeshift.raster import predict_suitability_raster
+from rangeshift.visualization import plot_suitability_map
 
 
 def _write_raster(path: Path, values: np.ndarray) -> None:
@@ -81,6 +82,7 @@ def main() -> None:
     temperature_path = output_dir / "temperature.tif"
     precipitation_path = output_dir / "precipitation.tif"
     suitability_path = output_dir / "habitat_suitability.tif"
+    map_path = output_dir / "habitat_suitability.png"
 
     _write_raster(temperature_path, temperature_grid)
     _write_raster(precipitation_path, precipitation_grid)
@@ -93,12 +95,19 @@ def main() -> None:
         },
         suitability_path,
     )
+    plot_suitability_map(
+        suitability_path,
+        map_path,
+        title="Synthetic RangeShift habitat suitability",
+        dpi=300,
+    )
 
     print("Model metrics:")
     print(trained.metrics)
     print(f"Predicted {result.valid_cells:,} raster cells")
     print(f"CRS: {result.crs}")
     print(f"Suitability GeoTIFF: {result.output_path}")
+    print(f"Suitability map: {map_path}")
 
 
 if __name__ == "__main__":
