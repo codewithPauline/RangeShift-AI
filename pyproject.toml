@@ -42,6 +42,7 @@ dependencies = [
 [project.optional-dependencies]
 geo = [
   "geopandas>=1.1",
+  "matplotlib>=3.8",
   "pyproj>=3.6,<3.8",
   "rasterio>=1.4"
 ]
