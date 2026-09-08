@@ -14,13 +14,14 @@ The project is developed in stages so that ecological assumptions and machine-le
 
 ## Project status
 
-**Active development — v0.3 raster suitability prediction.**
+**Active development — v0.3 raster suitability prediction and mapping.**
 
-RangeShift AI now connects three parts of a species-distribution workflow:
+RangeShift AI now connects four parts of a species-distribution workflow:
 
 1. **Model learning** — train and evaluate a habitat-suitability classifier from tabular environmental data.
 2. **Spatial validation** — test whether performance survives geographic separation between training and evaluation samples.
 3. **Raster projection** — apply a saved model to aligned environmental GeoTIFFs and export continuous habitat-suitability probabilities across a geographic grid.
+4. **Map rendering** — convert the suitability GeoTIFF into a high-resolution map with a fixed 0–1 scale and optional study-area boundary overlay.
 
 ### Current capabilities
 
@@ -42,6 +43,9 @@ RangeShift AI now connects three parts of a species-distribution workflow:
 - propagate nodata and non-finite raster cells into the output mask;
 - predict suitability probability for every complete raster cell;
 - export compressed `float32` GeoTIFF suitability predictions;
+- render 300-DPI suitability maps with a fixed 0–1 color scale;
+- optionally overlay a vector study-area boundary after CRS reprojection;
+- use CRS-aware longitude/latitude or easting/northing axis labels;
 - run the core workflows through a command-line interface;
 - test core and geospatial functionality automatically with GitHub Actions.
 
@@ -73,8 +77,10 @@ RangeShift AI now connects three parts of a species-distribution workflow:
 - [x] Validate shape, CRS, transform, nodata, and predictor names
 - [x] Predict suitability across a geographic grid
 - [x] Export GeoTIFF predictions
+- [x] High-resolution suitability-map rendering
+- [x] Optional study-area boundary overlay
 - [ ] Chunked/windowed prediction for very large rasters
-- [ ] Publication-quality suitability maps
+- [ ] Additional publication-map refinements and observation overlays
 
 ### Phase 4 — Future range-shift projection
 - [ ] Future climate/environmental scenario input
@@ -139,7 +145,7 @@ python -m venv .venv
 pip install -e .
 ```
 
-Install geospatial support, including GeoPandas, PyProj, and Rasterio:
+Install geospatial support, including GeoPandas, Matplotlib, PyProj, and Rasterio:
 
 ```bash
 pip install -e ".[geo]"
@@ -218,11 +224,23 @@ rangeshift predict-raster model.joblib \
 
 Each `--layer` maps one trained feature name to one aligned environmental raster. The output is a single-band `float32` GeoTIFF containing suitability probabilities from 0 to 1, with invalid predictor cells written as nodata.
 
+### Render the suitability map
+
+```bash
+rangeshift plot-raster habitat_suitability.tif \
+  --title "Predicted habitat suitability" \
+  --output habitat_suitability.png \
+  --dpi 300
+```
+
+An optional vector boundary can be added with `--boundary study_area.gpkg`. RangeShift reprojects the boundary to the raster CRS before drawing it.
+
 ## Python example
 
 ```python
 from rangeshift.prediction import load_model_bundle
 from rangeshift.raster import predict_suitability_raster
+from rangeshift.visualization import plot_suitability_map
 
 bundle = load_model_bundle("model.joblib")
 
@@ -236,11 +254,14 @@ result = predict_suitability_raster(
     "habitat_suitability.tif",
 )
 
-print(result.valid_cells)
-print(result.crs)
+plot_suitability_map(
+    result.output_path,
+    "habitat_suitability.png",
+    title="Predicted habitat suitability",
+)
 ```
 
-Runnable demonstrations are also available in the [`examples/`](examples/) directory.
+A fully synthetic end-to-end demonstration is available at [`examples/raster_demo.py`](examples/raster_demo.py). Running it creates environmental rasters, trains a model, generates a suitability GeoTIFF, and renders a 300-DPI PNG without requiring external ecological data.
 
 ## Scientific interpretation
 
