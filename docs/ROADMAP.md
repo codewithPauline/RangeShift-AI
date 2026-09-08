@@ -61,9 +61,9 @@ Remaining spatial improvements:
 2. Maps showing train/test blocks and observations.
 3. Additional strategies for studies spanning multiple projection zones or global extents.
 
-## v0.3 — Raster suitability prediction
+## v0.3 — Raster suitability prediction and mapping
 
-**Goal:** project a trained habitat-suitability model across a geographic environmental grid.
+**Goal:** project a trained habitat-suitability model across a geographic environmental grid and render the result clearly.
 
 Implemented:
 
@@ -77,8 +77,13 @@ Implemented:
 - compressed `float32` GeoTIFF export;
 - output band description and metadata tags;
 - `predict-raster` command-line workflow;
-- Rasterio included in the optional geospatial installation;
-- automated tests for nodata propagation, alignment rejection, feature matching, and output bounds.
+- high-resolution PNG map rendering with a fixed 0–1 suitability scale;
+- CRS-aware coordinate-axis labels;
+- optional vector study-area boundary overlay with automatic CRS reprojection;
+- `plot-raster` command-line workflow;
+- a fully synthetic end-to-end raster and map demonstration;
+- Rasterio and Matplotlib included in the optional geospatial installation;
+- automated tests for raster prediction and map rendering.
 
 Scientific design choice:
 
@@ -91,8 +96,8 @@ The v0.3 engine loads the full environmental predictor stack into memory. This i
 Next raster improvements:
 
 1. Windowed prediction for large raster stacks.
-2. Publication-quality suitability-map rendering.
-3. Optional observation overlays and study-area boundaries.
+2. Observation and training/testing overlays.
+3. Additional publication-layout controls such as scale bars and boundary styling.
 4. Raster-stack diagnostics that summarize valid coverage and predictor ranges.
 
 ## v0.4 — Current vs. future environments
