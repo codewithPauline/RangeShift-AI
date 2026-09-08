@@ -16,6 +16,7 @@ from .spatial import (
     evaluate_spatial_holdout,
 )
 from .spatial_cv import SpatialCVResult, cross_validate_spatial_blocks, spatial_cross_validate
+from .visualization import plot_suitability_map
 
 __all__ = [
     "ProjectedBlockResult",
@@ -32,6 +33,7 @@ __all__ = [
     "estimate_local_utm_epsg",
     "evaluate_spatial_holdout",
     "parse_layer_specs",
+    "plot_suitability_map",
     "predict_suitability_raster",
     "spatial_cross_validate",
     "train_habitat_model",
