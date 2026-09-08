@@ -1,11 +1,16 @@
 """Tests for optional projected geospatial utilities."""
 
+from importlib.util import find_spec
+
 import pandas as pd
 import pytest
 
-pyproj = pytest.importorskip("pyproj")
-
 from rangeshift.geospatial import assign_projected_blocks, estimate_local_utm_epsg
+
+pytestmark = pytest.mark.skipif(
+    find_spec("pyproj") is None,
+    reason="pyproj is not installed",
+)
 
 
 def test_estimate_local_utm_epsg_for_ohio_coordinates() -> None:
@@ -23,7 +28,7 @@ def test_projected_blocks_use_kilometer_grid() -> None:
     frame = pd.DataFrame(
         {
             "latitude": [39.20, 39.22, 40.50, 40.52],
-            "longitude": [-84.90, -84.88, -83.10, -83.08],
+            "longitude": [-85.90, -85.88, -84.50, -84.48],
         }
     )
     result = assign_projected_blocks(frame, block_size_km=50.0)
