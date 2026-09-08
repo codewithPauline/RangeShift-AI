@@ -11,6 +11,7 @@ import pandas as pd
 from .data import load_occurrence_table
 from .model import save_model_bundle, train_habitat_model
 from .prediction import load_model_bundle, predict_suitability
+from .spatial import compare_random_and_spatial
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -56,6 +57,31 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("suitability_predictions.csv"),
         help="CSV path for predictions.",
     )
+
+    spatial = subparsers.add_parser(
+        "compare-spatial",
+        help="Compare random holdout performance with spatial block holdout performance.",
+    )
+    spatial.add_argument("input_csv", type=Path, help="CSV containing target and predictors.")
+    spatial.add_argument("--target", default="presence")
+    spatial.add_argument("--features", nargs="+", required=True)
+    spatial.add_argument("--latitude", default="latitude")
+    spatial.add_argument("--longitude", default="longitude")
+    spatial.add_argument(
+        "--block-size",
+        type=float,
+        default=1.0,
+        help="Spatial grid-cell size in geographic degrees (default: 1.0).",
+    )
+    spatial.add_argument("--test-size", type=float, default=0.25)
+    spatial.add_argument("--seed", type=int, default=42)
+    spatial.add_argument("--trees", type=int, default=300)
+    spatial.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Optional JSON path for comparison metrics.",
+    )
     return parser
 
 
@@ -93,6 +119,36 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         output.to_csv(args.output, index=False)
         print(f"Saved predictions: {args.output}")
+        return
+
+    if args.command == "compare-spatial":
+        frame = load_occurrence_table(args.input_csv)
+        result = compare_random_and_spatial(
+            frame,
+            feature_columns=args.features,
+            target_column=args.target,
+            latitude_column=args.latitude,
+            longitude_column=args.longitude,
+            block_size_degrees=args.block_size,
+            test_size=args.test_size,
+            random_state=args.seed,
+            n_estimators=args.trees,
+        )
+
+        payload = {
+            "random": result.random.metrics,
+            "spatial": result.spatial.metrics,
+            "spatial_minus_random": result.spatial_minus_random,
+            "spatial_train_blocks": len(result.spatial.train_blocks),
+            "spatial_test_blocks": len(result.spatial.test_blocks),
+            "block_size_degrees": result.spatial.block_size_degrees,
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
+
+        if args.output is not None:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+            print(f"Saved comparison: {args.output}")
 
 
 if __name__ == "__main__":
