@@ -10,36 +10,40 @@
 
 Species ranges are not static. Climate, land use, topography, and other environmental pressures can change where suitable habitat exists. RangeShift AI is being built as a transparent, reproducible machine-learning toolkit for moving from species occurrence and environmental data to habitat-suitability predictions and, ultimately, projected geographic range shifts.
 
-The project is developed in stages so that each ecological assumption and machine-learning decision is visible, testable, and explainable rather than hidden inside a black-box workflow.
+The project is developed in stages so that ecological assumptions and machine-learning decisions remain visible, testable, and explainable rather than hidden inside a black-box workflow.
 
 ## Project status
 
-**Active development — v0.2 spatial intelligence.**
+**Active development — v0.3 raster suitability prediction.**
 
-RangeShift AI can now answer two different model-evaluation questions:
+RangeShift AI now connects three parts of a species-distribution workflow:
 
-1. **Random holdout:** how well does the model predict randomly withheld observations?
-2. **Spatial holdout:** how well does the model predict observations from geographic blocks that were completely absent from training?
-
-That distinction matters because nearby samples often share both environment and spatial structure. A random split can therefore produce an optimistic estimate of how well a species-distribution model will transfer to genuinely new geography.
+1. **Model learning** — train and evaluate a habitat-suitability classifier from tabular environmental data.
+2. **Spatial validation** — test whether performance survives geographic separation between training and evaluation samples.
+3. **Raster projection** — apply a saved model to aligned environmental GeoTIFFs and export continuous habitat-suitability probabilities across a geographic grid.
 
 ### Current capabilities
 
 - load occurrence/background CSV data;
 - validate binary targets and numeric environmental predictors;
-- validate latitude/longitude coordinates;
 - train a class-balanced `RandomForestClassifier`;
 - report ROC-AUC, accuracy, precision, recall, and F1;
-- rank environmental predictors by feature importance;
+- rank predictors by feature importance;
 - save and reload trained model bundles;
-- predict continuous habitat-suitability probabilities;
-- assign observations to non-overlapping spatial grid blocks;
-- evaluate a model with complete spatial blocks held out;
-- compare random-split and spatial-split performance directly;
-- guarantee that spatial train/test blocks do not overlap;
+- predict continuous habitat-suitability probabilities for tabular data;
+- validate latitude/longitude coordinates;
+- assign observations to non-overlapping degree-based spatial blocks;
+- compare random and spatial holdout performance;
+- run repeated spatial block cross-validation;
+- create kilometer-scale projected blocks using a local UTM CRS or a user-specified EPSG code;
 - optionally convert coordinate tables to GeoPandas `GeoDataFrame` objects;
-- run training, prediction, and spatial comparison from the command line;
-- test the core workflow automatically with GitHub Actions.
+- validate aligned single-band environmental raster stacks;
+- require raster predictor names to match the trained model exactly;
+- propagate nodata and non-finite raster cells into the output mask;
+- predict suitability probability for every complete raster cell;
+- export compressed `float32` GeoTIFF suitability predictions;
+- run the core workflows through a command-line interface;
+- test core and geospatial functionality automatically with GitHub Actions.
 
 ## Roadmap
 
@@ -55,18 +59,21 @@ That distinction matters because nearby samples often share both environment and
 
 ### Phase 2 — Spatial intelligence
 - [x] Coordinate validation
-- [x] Spatial block assignment
+- [x] Degree-based spatial blocks
 - [x] Spatially separated train/test evaluation
 - [x] Random-vs-spatial performance comparison
+- [x] Repeated spatial cross-validation
 - [x] Optional GeoPandas conversion
-- [ ] CRS-aware projected spatial blocks
-- [ ] Repeated spatial cross-validation
+- [x] CRS-aware projected spatial blocks measured in kilometers
 - [ ] Sampling-bias diagnostics
+- [ ] Train/test block visualization
 
 ### Phase 3 — Environmental rasters and mapping
-- [ ] Read raster predictor layers
-- [ ] Predict suitability across a geographic grid
-- [ ] Export GeoTIFF predictions
+- [x] Read aligned raster predictor layers
+- [x] Validate shape, CRS, transform, nodata, and predictor names
+- [x] Predict suitability across a geographic grid
+- [x] Export GeoTIFF predictions
+- [ ] Chunked/windowed prediction for very large rasters
 - [ ] Publication-quality suitability maps
 
 ### Phase 4 — Future range-shift projection
@@ -89,9 +96,9 @@ That distinction matters because nearby samples often share both environment and
 - [ ] Documentation/tutorials
 - [ ] Packaged release
 
-See the detailed learning and scientific plan in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+See the detailed scientific and development plan in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
-## Input data format
+## Tabular input format
 
 The baseline model expects a binary response column and numeric environmental predictors. Spatial evaluation additionally requires latitude and longitude.
 
@@ -105,9 +112,25 @@ presence,bio1,bio12,elevation,latitude,longitude
 
 `presence` should contain `1` for observed/presence records and `0` for background or absence records.
 
-> **Scientific note:** pseudo-absence/background generation can strongly affect species-distribution models. RangeShift AI does not yet generate these points automatically. That ecological decision will remain explicit rather than being silently made for the user.
+> **Scientific note:** pseudo-absence/background generation can strongly affect species-distribution models. RangeShift AI does not yet generate these points automatically. That ecological decision remains explicit rather than being silently made for the user.
+
+## Raster input requirements
+
+Raster prediction expects **one single-band raster per trained model feature**. Before prediction, RangeShift verifies that all layers have:
+
+- the same number of rows and columns;
+- the same coordinate reference system;
+- the same affine transform and pixel grid;
+- complete, finite predictor values for every cell that will be predicted;
+- predictor names that match the saved model exactly.
+
+RangeShift deliberately does **not** silently crop, reproject, or resample mismatched predictors. Those preprocessing choices can materially affect ecological inference and should be made explicitly before model projection.
+
+The current v0.3 implementation loads the complete predictor stack into memory. Windowed/chunked prediction is planned for large continental or global raster datasets.
 
 ## Installation
+
+Clone and install the lightweight ML core:
 
 ```bash
 git clone https://github.com/codewithPauline/RangeShift-AI.git
@@ -116,7 +139,7 @@ python -m venv .venv
 pip install -e .
 ```
 
-For GeoPandas support:
+Install geospatial support, including GeoPandas, PyProj, and Rasterio:
 
 ```bash
 pip install -e ".[geo]"
@@ -125,7 +148,7 @@ pip install -e ".[geo]"
 For development and testing:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev,geo]"
 ```
 
 ## Command-line usage
@@ -139,7 +162,7 @@ rangeshift train data.csv \
   --output model.joblib
 ```
 
-### Predict habitat suitability
+### Predict tabular habitat suitability
 
 ```bash
 rangeshift predict model.joblib future_environment.csv \
@@ -160,87 +183,79 @@ rangeshift compare-spatial data.csv \
   --output spatial_comparison.json
 ```
 
-The command reports three groups of results:
+A negative `spatial_minus_random` metric means performance declined when the model had to transfer to geography that was not represented in training.
 
-- `random`: conventional stratified random holdout metrics;
-- `spatial`: metrics from complete held-out geographic blocks;
-- `spatial_minus_random`: the change in each metric under the harder spatial test.
+### Run repeated spatial cross-validation
 
-A negative `spatial_minus_random` value means performance declined when the model had to transfer to geography that was not represented in training.
+```bash
+rangeshift spatial-cv data.csv \
+  --target presence \
+  --features bio1 bio12 elevation \
+  --block-size 1.0 \
+  --splits 5 \
+  --output spatial_cv.csv
+```
+
+### Create kilometer-scale projected blocks
+
+```bash
+rangeshift project-blocks data.csv \
+  --block-km 100 \
+  --output projected_blocks.csv
+```
+
+For regional data within UTM coverage, RangeShift can estimate a local UTM CRS automatically. A specific projected CRS can also be supplied with `--epsg`.
+
+### Predict a habitat-suitability GeoTIFF
+
+```bash
+rangeshift predict-raster model.joblib \
+  --layer bio1=rasters/bio1.tif \
+  --layer bio12=rasters/bio12.tif \
+  --layer elevation=rasters/elevation.tif \
+  --output habitat_suitability.tif
+```
+
+Each `--layer` maps one trained feature name to one aligned environmental raster. The output is a single-band `float32` GeoTIFF containing suitability probabilities from 0 to 1, with invalid predictor cells written as nodata.
 
 ## Python example
 
 ```python
-import pandas as pd
-from rangeshift.spatial import compare_random_and_spatial
+from rangeshift.prediction import load_model_bundle
+from rangeshift.raster import predict_suitability_raster
 
-frame = pd.read_csv("data.csv")
+bundle = load_model_bundle("model.joblib")
 
-result = compare_random_and_spatial(
-    frame,
-    feature_columns=["bio1", "bio12", "elevation"],
-    target_column="presence",
-    latitude_column="latitude",
-    longitude_column="longitude",
-    block_size_degrees=1.0,
+result = predict_suitability_raster(
+    bundle,
+    {
+        "bio1": "rasters/bio1.tif",
+        "bio12": "rasters/bio12.tif",
+        "elevation": "rasters/elevation.tif",
+    },
+    "habitat_suitability.tif",
 )
 
-print(result.random.metrics)
-print(result.spatial.metrics)
-print(result.spatial_minus_random)
+print(result.valid_cells)
+print(result.crs)
 ```
 
-Runnable demonstrations are available in:
+Runnable demonstrations are also available in the [`examples/`](examples/) directory.
 
-- [`examples/train_demo.py`](examples/train_demo.py)
-- [`examples/spatial_demo.py`](examples/spatial_demo.py)
+## Scientific interpretation
 
-## How spatial blocking currently works
+A suitability raster is a **model projection**, not a guaranteed realized species distribution. High predicted suitability does not mean a species will necessarily occupy a cell. Dispersal limits, biotic interactions, demographic processes, sampling bias, land-use barriers, detectability, adaptation, and environmental novelty can all separate potential suitability from realized range occupancy.
 
-RangeShift v0.2 divides latitude/longitude coordinates into fixed geographic grid cells and uses those cells as groups during model splitting. Entire blocks are assigned to either training or testing, so no spatial block appears in both partitions.
-
-This is deliberately a **baseline spatial diagnostic**. Geographic degrees are not equal-area units: one degree of longitude represents different physical distances at different latitudes. The next spatial milestone will add projected, CRS-aware blocking for analyses where block size needs to correspond to real distances.
-
-## GeoPandas integration
-
-The lightweight ML core does not require a full GIS stack. Users who install the optional `geo` dependency can convert coordinate tables into a WGS84 `GeoDataFrame`:
-
-```python
-from rangeshift.spatial import to_geodataframe
-
-gdf = to_geodataframe(frame)
-print(gdf.crs)
-```
-
-This keeps the core package easy to install while providing a clean path toward projections, spatial joins, raster sampling, and mapping.
-
-## Repository structure
-
-```text
-RangeShift-AI/
-├── .github/workflows/     # continuous integration
-├── docs/                  # project design and scientific roadmap
-├── examples/              # runnable demonstrations
-├── src/rangeshift/        # Python package
-├── tests/                 # automated tests
-├── .gitignore
-├── LICENSE
-├── pyproject.toml
-└── README.md
-```
+Similarly, model performance from random train/test splitting can be optimistic when observations are spatially autocorrelated. RangeShift therefore exposes spatial validation alongside conventional evaluation rather than treating geography as an afterthought.
 
 ## Design principles
 
 RangeShift AI is being developed around four principles:
 
-1. **Reproducibility** — the same inputs and random seed should reproduce the same baseline result.
-2. **Scientific transparency** — ecological assumptions should be explicit.
-3. **Software quality** — tested, modular code rather than a single analysis notebook.
-4. **Interpretability** — model performance and predictor effects should be inspectable.
-
-## What this project is not
-
-RangeShift AI does not assume that a machine-learning suitability score is automatically equivalent to a realized species range. Dispersal limits, biotic interactions, sampling bias, evolutionary adaptation, land-use change, detectability, and extrapolation into novel environmental space can all affect real distributions and future range shifts.
+1. **Reproducibility** — identical inputs and seeds should reproduce baseline results.
+2. **Scientific transparency** — ecological and geospatial assumptions should be explicit.
+3. **Software quality** — tested, modular code rather than one monolithic notebook.
+4. **Interpretability** — performance, predictors, spatial transfer, and outputs should be inspectable.
 
 ## Author
 
