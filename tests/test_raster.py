@@ -10,7 +10,8 @@ from rangeshift.model import train_habitat_model
 from rangeshift.raster import parse_layer_specs, predict_suitability_raster
 
 rasterio = pytest.importorskip("rasterio")
-from rasterio.transform import from_origin
+rasterio_transform = pytest.importorskip("rasterio.transform")
+from_origin = rasterio_transform.from_origin
 
 
 def _bundle() -> dict:
