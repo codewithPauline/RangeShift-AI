@@ -41,7 +41,8 @@ dependencies = [
 
 [project.optional-dependencies]
 geo = [
-  "geopandas>=1.1"
+  "geopandas>=1.1",
+  "pyproj>=3.6,<3.8"
 ]
 dev = [
   "pytest>=8.0",
