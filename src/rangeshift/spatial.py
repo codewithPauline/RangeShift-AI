@@ -100,7 +100,11 @@ def assign_spatial_blocks(
     return blocks
 
 
-def _metrics(y_true: pd.Series, probabilities: np.ndarray, predictions: np.ndarray) -> dict[str, float]:
+def _metrics(
+    y_true: pd.Series,
+    probabilities: np.ndarray,
+    predictions: np.ndarray,
+) -> dict[str, float]:
     """Calculate the binary classification metrics used across RangeShift."""
     return {
         "roc_auc": float(roc_auc_score(y_true, probabilities)),
