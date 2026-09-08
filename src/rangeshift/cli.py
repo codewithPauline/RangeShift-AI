@@ -6,8 +6,11 @@ import argparse
 import json
 from pathlib import Path
 
+import pandas as pd
+
 from .data import load_occurrence_table
 from .model import save_model_bundle, train_habitat_model
+from .prediction import load_model_bundle, predict_suitability
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,11 +43,24 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--test-size", type=float, default=0.25)
     train.add_argument("--seed", type=int, default=42)
     train.add_argument("--trees", type=int, default=300)
+
+    predict = subparsers.add_parser(
+        "predict",
+        help="Predict suitability from a saved RangeShift model.",
+    )
+    predict.add_argument("model", type=Path, help="Saved `.joblib` model bundle.")
+    predict.add_argument("input_csv", type=Path, help="CSV containing environmental predictors.")
+    predict.add_argument(
+        "--output",
+        type=Path,
+        default=Path("suitability_predictions.csv"),
+        help="CSV path for predictions.",
+    )
     return parser
 
 
 def main() -> None:
-    """Run the RangeShift command line interface."""
+    """Run the RangeShift command-line interface."""
     parser = build_parser()
     args = parser.parse_args()
 
@@ -65,6 +81,18 @@ def main() -> None:
         print("\nFeature importance")
         print(result.feature_importance.to_string(index=False))
         print(f"\nSaved model: {saved_path}")
+        return
+
+    if args.command == "predict":
+        frame = pd.read_csv(args.input_csv)
+        bundle = load_model_bundle(args.model)
+        suitability = predict_suitability(frame, bundle)
+
+        output = frame.copy()
+        output["suitability"] = suitability
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        output.to_csv(args.output, index=False)
+        print(f"Saved predictions: {args.output}")
 
 
 if __name__ == "__main__":
