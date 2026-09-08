@@ -12,6 +12,7 @@ from .data import load_occurrence_table
 from .geospatial import assign_projected_blocks
 from .model import save_model_bundle, train_habitat_model
 from .prediction import load_model_bundle, predict_suitability
+from .raster import parse_layer_specs, predict_suitability_raster
 from .spatial import compare_random_and_spatial
 from .spatial_cv import spatial_cross_validate
 
@@ -48,6 +49,25 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("suitability_predictions.csv"),
     )
+
+    raster = subparsers.add_parser(
+        "predict-raster",
+        help="Predict a habitat-suitability GeoTIFF from aligned environmental rasters.",
+    )
+    raster.add_argument("model", type=Path, help="Saved RangeShift model bundle.")
+    raster.add_argument(
+        "--layer",
+        action="append",
+        required=True,
+        metavar="FEATURE=PATH",
+        help="Predictor raster mapping; repeat once for each trained model feature.",
+    )
+    raster.add_argument(
+        "--output",
+        type=Path,
+        default=Path("habitat_suitability.tif"),
+    )
+    raster.add_argument("--nodata", type=float, default=-9999.0)
 
     spatial = subparsers.add_parser(
         "compare-spatial",
@@ -129,6 +149,25 @@ def main() -> None:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         output.to_csv(args.output, index=False)
         print(f"Saved predictions: {args.output}")
+        return
+
+    if args.command == "predict-raster":
+        bundle = load_model_bundle(args.model)
+        layers = parse_layer_specs(args.layer)
+        result = predict_suitability_raster(
+            bundle,
+            layers,
+            args.output,
+            nodata=args.nodata,
+        )
+        payload = {
+            "output": str(result.output_path),
+            "valid_cells": result.valid_cells,
+            "total_cells": result.total_cells,
+            "features": result.feature_columns,
+            "crs": result.crs,
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
         return
 
     if args.command == "compare-spatial":
