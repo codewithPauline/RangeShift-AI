@@ -6,8 +6,8 @@ This keeps the decision rule separate from the data used for final reporting.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 import numpy as np
 import pandas as pd
