@@ -1,6 +1,6 @@
 # RangeShift AI Development Roadmap
 
-RangeShift AI is being developed as scientific software, not as a collection of disconnected notebooks. Each milestone adds a testable capability while preserving explicit ecological assumptions and reproducible outputs.
+RangeShift AI is being developed as scientific software, not as a collection of disconnected notebooks. Each milestone adds a testable capability while keeping ecological assumptions explicit and outputs reproducible.
 
 ## Core roadmap status
 
@@ -11,7 +11,9 @@ RangeShift AI is being developed as scientific software, not as a collection of 
 | Phase 3 | Environmental rasters and mapping | Complete ✅ |
 | Phase 4 | Future range-shift projection | Complete ✅ |
 | Phase 5 | Explainable and robust ML | Complete ✅ |
-| Phase 6 | Ecological safeguards and productization | Planned / active next |
+| Phase 6 | Ecological safeguards and productization | Complete ✅ |
+
+The six-phase public roadmap is complete in v0.7.0. Later work is intentionally separated below rather than being retroactively treated as unfinished Phase 6 work.
 
 ## v0.1 — Baseline habitat suitability
 
@@ -55,10 +57,6 @@ Extended in v0.6:
 - train/test spatial split visualization;
 - grouped hyperparameter tuning with prevalidated two-class folds.
 
-Why it matters:
-
-Spatial autocorrelation can make a species-distribution model appear more accurate when nearby observations are divided randomly between training and testing. RangeShift makes that potential optimism visible and keeps complete spatial groups together when requested.
-
 ## v0.3 — Raster suitability prediction and mapping
 
 **Goal:** project a trained habitat-suitability model across aligned environmental raster grids.
@@ -75,7 +73,6 @@ Implemented:
 - high-resolution suitability maps;
 - CRS-aware map axes;
 - optional vector-boundary overlay;
-- synthetic raster demonstration;
 - automated raster and rendering tests.
 
 Extended in v0.6:
@@ -84,9 +81,7 @@ Extended in v0.6:
 - configurable raster window size;
 - parity tests showing windowed and in-memory engines produce equivalent outputs.
 
-Scientific design choice:
-
-RangeShift does not silently crop, reproject, or resample mismatched environmental rasters. Those preprocessing decisions can alter ecological inference, so users must make them explicitly before model projection.
+Scientific design choice: RangeShift does not silently crop, reproject, or resample mismatched environmental rasters.
 
 ## v0.4 — Current-to-future range-shift analysis
 
@@ -98,26 +93,22 @@ Implemented:
 - explicit required suitability threshold;
 - stable unsuitable, lost, gained, and stable suitable classes;
 - continuous future-minus-current suitability raster;
-- projected-CRS cell area using CRS linear units;
-- geodesic cell-area calculation for geographic CRSs;
-- current and future suitable-area estimates;
+- projected-CRS and geodesic geographic cell-area calculations;
+- current/future suitable-area estimates;
 - gained, lost, stable, and net range-area change;
 - percentage area change relative to current suitable habitat;
-- area-weighted Jaccard overlap;
+- Jaccard overlap;
 - area-weighted geographic centroids;
-- geodesic centroid shift distance;
-- centroid shift bearing;
+- centroid shift distance and bearing;
 - JSON summary output;
-- discrete range-shift transition maps;
-- synthetic end-to-end demonstration;
-- automated calculation and rendering tests.
+- discrete transition maps.
 
 Scientific design choices:
 
 1. Probability `0.5` is never silently treated as the habitat threshold.
-2. The continuous suitability-change surface is retained alongside classified transitions.
+2. Continuous suitability change is retained alongside classified transitions.
 3. Geographic raster cells are not assumed to have equal physical area.
-4. Centroid movement describes movement in modeled suitable area, not organismal dispersal distance.
+4. Centroid movement describes modeled suitable-area movement, not organismal dispersal distance.
 
 ## v0.5 — Threshold selection and probability calibration
 
@@ -127,34 +118,20 @@ Implemented:
 
 - separate training / validation / final test partitions;
 - Random Forest fitting on training data only;
-- cross-validated probability calibration inside the training partition;
-- sigmoid calibration;
-- isotonic calibration;
+- cross-validated calibration inside the training partition;
+- sigmoid and isotonic calibration;
 - validation-only threshold selection;
-- TSS / Youden J selection;
-- F1 selection;
-- balanced-accuracy selection;
+- TSS / Youden J, F1, and balanced-accuracy selection;
 - sensitivity, specificity, precision, recall, F1, accuracy, and positive-rate diagnostics;
 - Brier score, log loss, and ROC-AUC probability evaluation;
 - calibrated-vs-uncalibrated test probability comparison;
 - final threshold-based metrics on an untouched test set;
-- calibration diagnostic tables;
-- threshold diagnostic tables;
-- calibrated model persistence using the standard RangeShift prediction bundle;
-- `calibrate` and `select-threshold` CLI workflows;
-- synthetic calibration demonstration;
-- automated threshold and calibration tests.
-
-Scientific design choices:
-
-1. Thresholds are never selected on the final test set.
-2. Calibration is not assumed to improve every model.
-3. Selected thresholds remain explicit when used for downstream range classification.
-4. Validation and final test performance are reported separately.
+- calibrated model persistence;
+- CLI workflows and automated tests.
 
 ## v0.6 — Roadmap consolidation, robust ML, and ecological transfer diagnostics
 
-**Goal:** close the meaningful unfinished items from Phases 1–5 before expanding into productization.
+**Goal:** close the meaningful unfinished items from Phases 1–5 before expanding into ecological safeguards and productization.
 
 Implemented:
 
@@ -165,117 +142,155 @@ Implemented:
 - default *Ambystoma maculatum* example;
 - WorldClim 2.1 BIO1, BIO12, and BIO15 preparation;
 - climate extraction at presence records;
-- climate-valid random background sampling;
+- climate-valid background sampling;
 - provenance JSON output;
-- generated downloads and large climate files excluded from Git history;
-- explicit publication-use caveats recommending citable GBIF DOI downloads and justified sampling design.
+- explicit publication-use caveats.
 
-### Sampling-bias diagnostics
+### Sampling-bias and spatial diagnostics
 
 - duplicate-coordinate fraction;
-- nearest-neighbor distance distribution using haversine distance;
-- spatial-block observation counts;
-- maximum block concentration;
-- block-count coefficient of variation;
+- nearest-neighbor distance distribution;
+- spatial-block observation counts and concentration metrics;
 - effective-number-of-blocks diagnostic;
-- no arbitrary universal pass/fail cutoff.
+- train/test spatial split visualization.
 
-### Spatial visualization
-
-- train vs held-out observation map;
-- optional geographic block grid overlay;
-- explicit train/test overlap rejection;
-- high-resolution figure export.
-
-### Model tuning and comparison
+### Model tuning and explainability
 
 - Random Forest hyperparameter search;
 - Gradient Boosting hyperparameter search;
-- common scoring criteria across model families;
-- balanced sample weighting for both algorithms;
 - ordinary stratified CV or spatially grouped CV;
 - grouped-fold prevalidation so every train/test fold contains both classes;
-- selected-model persistence through the standard model-bundle contract.
+- partial-dependence response tables and figures;
+- optional Tree SHAP mean-absolute feature attribution.
 
-### Explainability
-
-- one-dimensional partial-dependence response tables;
-- high-resolution response-curve figures;
-- optional Tree SHAP mean-absolute feature attribution;
-- dedicated optional SHAP dependency and CI job.
-
-### Environmental extrapolation
+### Environmental transfer and raster scale
 
 - predictor-wise training envelopes;
-- row-level counts/fractions of novel predictor values;
-- normalized distance beyond the training envelope;
-- feature-level fractions below/above/outside the observed training range;
-- transparent labeling as a univariate envelope diagnostic rather than a full multivariate MESS implementation.
+- row-level and feature-level extrapolation diagnostics;
+- normalized distance beyond the observed envelope;
+- bounded-memory windowed raster prediction.
 
-### Raster scaling
+## v0.7 — Ecological safeguards and productization
 
-- windowed/chunked raster prediction;
-- fixed-size bounded-memory processing;
-- strict metadata validation before any window is written;
-- equivalent output contract to the original in-memory engine.
+**Goal:** make the end-to-end workflow more ecologically defensible, reproducible, installable, and inspectable without hiding modeling assumptions.
 
-## Phase 6 — Ecological safeguards and productization
+Implemented:
 
-The next development phase should deepen ecological defensibility rather than merely add more algorithms.
+### Background / pseudo-absence design
 
-Planned:
+- equal-area random background generation;
+- spatially stratified background generation;
+- candidate-pool / target-group background sampling;
+- explicit minimum-distance exclusion from presence locations;
+- deterministic seeds and provenance metadata.
 
-1. pseudo-absence/background generation strategies beyond the current demonstration sampler;
-2. spatial thinning workflows;
-3. environmental collinearity diagnostics and predictor-screening reports;
-4. multivariate novel-climate / MESS-style diagnostics;
-5. uncertainty summaries across resamples, models, or scenarios;
-6. optional dispersal constraints on future suitable habitat;
-7. reproducible configuration files and run manifests;
-8. batch future-scenario comparisons;
-9. interactive visualization interface;
-10. packaged public release and release notes.
+### Spatial thinning
 
-## Later scale and reproducibility goals
+- minimum geodesic-distance thinning;
+- deterministic tie handling;
+- optional priority column so higher-quality records can be retained first;
+- retained/removed record accounting.
 
-After Phase 6, useful engineering extensions include:
+### Environmental collinearity
 
-- tiled/cloud-optimized raster workflows;
-- provenance metadata embedded in output rasters;
-- scenario manifests;
-- batch climate-model / SSP comparison;
-- exportable report tables and figures;
-- stable configuration schema;
-- formal semantic-versioned releases.
+- Pearson correlation matrix;
+- high-correlation-pair reporting;
+- variance-inflation factors (VIF);
+- user-controlled correlation and VIF warning thresholds;
+- no silent predictor deletion.
 
-## v1.0 target
+### Novel-climate safeguards
+
+- existing univariate training-envelope diagnostics retained;
+- multivariate standardized environmental-distance diagnostics;
+- training-derived novelty threshold;
+- combined row-level `novel_climate_warning` output.
+
+This is described as a transparent MESS-style warning layer, not as an exact implementation of every published MESS variant.
+
+### Dispersal constraints
+
+- explicit maximum-distance dispersal assumption;
+- accessibility raster from currently suitable habitat;
+- separation of accessible and beyond-distance future-suitable cells;
+- dispersal-constrained future suitability raster;
+- downstream range-shift comparison can use the constrained surface.
+
+### Reproducible configuration
+
+- JSON `RunConfig` schema;
+- one-command calibrated current-to-future workflow;
+- optional spatial validation;
+- optional dispersal constraint;
+- SHA-256 hash of the normalized configuration;
+- machine-readable run manifest recording model, threshold, assumptions, diagnostics, and output paths;
+- example configuration file.
+
+### Product interface
+
+- `rangeshift-eco` ecological-safeguard CLI;
+- `rangeshift-run` configuration-driven workflow CLI;
+- packaged `rangeshift-app` launcher;
+- Streamlit explorer for suitability rasters, range-shift rasters, and summary/run-manifest JSON;
+- explicit warning in the interface that suitability projections are not guaranteed future distributions.
+
+### Packaging and release engineering
+
+- Python wheel build;
+- source distribution build;
+- Twine metadata validation;
+- clean wheel installation test;
+- automated GitHub Release workflow;
+- distribution artifacts attached to versioned releases;
+- Python 3.10, 3.11, and 3.12 CI;
+- dedicated geospatial, explainability, app, and package-build jobs.
+
+## Post-v0.7 roadmap
+
+These are **future extensions**, not unfinished Phase 6 boxes.
+
+### v0.8 candidates — uncertainty and scenario ensembles
+
+- uncertainty summaries across resamples and candidate models;
+- batch climate-model / SSP scenario comparison;
+- ensemble consensus and disagreement maps;
+- threshold-sensitivity summaries;
+- scenario-level uncertainty tables and figures.
+
+### v0.9 candidates — scale and provenance
+
+- tiled or cloud-optimized raster workflows;
+- provenance metadata embedded directly in output rasters;
+- richer scenario manifests;
+- exportable analysis reports;
+- configuration-schema versioning and migration support.
+
+### v1.0 target
 
 A v1.0 release should let a user move from occurrence records and environmental layers to a documented range-shift report without hiding the underlying scientific assumptions.
 
-Expected v1.0 outputs:
+Expected v1.0 outputs include:
 
 - validated occurrence/environmental inputs;
-- sampling-bias and coordinate diagnostics;
-- trained and spatially evaluated candidate models;
-- documented model selection;
-- calibrated probabilities where appropriate;
-- documented threshold selection;
-- current suitability raster;
-- future suitability raster;
-- environmental extrapolation diagnostics;
+- background-generation and sampling-bias diagnostics;
+- spatially evaluated candidate models;
+- documented model selection and calibration;
+- explicit threshold selection;
+- current and future suitability rasters;
+- extrapolation and novelty warnings;
+- optional dispersal-constrained projection;
 - gain/loss/stability raster;
 - continuous suitability-change raster;
-- range-area and overlap summary;
-- centroid shift distance and direction;
+- range-area, overlap, and centroid-shift summaries;
 - model interpretation;
 - uncertainty and transferability warnings;
-- reproducible metadata/configuration;
+- reproducible configuration/run metadata;
 - exportable figures and tables.
 
 ## Scientific boundaries
 
-RangeShift AI must never present habitat-suitability projections as guaranteed future distributions. Realized ranges may differ because of dispersal, biotic interactions, adaptation, demographic processes, sampling bias, barriers, land-use change, detectability, environmental novelty, and future-scenario uncertainty.
+RangeShift AI must never present habitat-suitability projections as guaranteed future distributions. Realized ranges may differ because of dispersal, barriers, biotic interactions, adaptation, demographic processes, sampling bias, detectability, land-use change, environmental novelty, and future-scenario uncertainty.
 
 A model producing a probability is not evidence that its projection environment is familiar. High apparent predictive accuracy is not automatically evidence of geographic transferability. A classified suitability map is not equivalent to realized occupancy.
 
-Those limitations are part of the model, not footnotes to hide.
+Those limitations are part of the analysis, not footnotes to hide.
