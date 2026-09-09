@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 RANGE_SHIFT_LABELS = {
     0: "Stable unsuitable",
     1: "Lost suitable habitat",
@@ -150,7 +149,11 @@ def plot_range_shift_map(
 
         classes = dataset.read(1, masked=True)
         valid_values = np.unique(classes.compressed())
-        unexpected = [int(value) for value in valid_values if int(value) not in RANGE_SHIFT_LABELS]
+        unexpected = [
+            int(value)
+            for value in valid_values
+            if int(value) not in RANGE_SHIFT_LABELS
+        ]
         if unexpected:
             raise ValueError(f"Unexpected range-shift class codes: {unexpected}")
         extent = plotting_extent(dataset)
