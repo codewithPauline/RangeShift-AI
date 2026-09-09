@@ -7,7 +7,7 @@ summarizes physically meaningful area and geographic centroid movement.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -49,7 +49,7 @@ class RangeShiftResult:
 
     def to_dict(self) -> dict:
         """Return a JSON-serializable result dictionary."""
-        payload = asdict(self)
+        payload = self.__dict__.copy()
         payload["classes_path"] = str(self.classes_path)
         payload["difference_path"] = (
             str(self.difference_path) if self.difference_path is not None else None
@@ -82,7 +82,9 @@ def _load_suitability_pair(current_path: Path, future_path: Path):
 
     for label, path in (("current", current_path), ("future", future_path)):
         if not path.exists():
-            raise FileNotFoundError(f"{label.capitalize()} suitability raster does not exist: {path}")
+            raise FileNotFoundError(
+                f"{label.capitalize()} suitability raster does not exist: {path}"
+            )
 
     with rasterio.open(current_path) as current_ds, rasterio.open(future_path) as future_ds:
         for label, dataset in (("current", current_ds), ("future", future_ds)):
@@ -92,9 +94,13 @@ def _load_suitability_pair(current_path: Path, future_path: Path):
                 raise ValueError(f"{label.capitalize()} suitability raster must define a CRS.")
 
         if (current_ds.height, current_ds.width) != (future_ds.height, future_ds.width):
-            raise ValueError("Current and future suitability rasters must have identical dimensions.")
+            raise ValueError(
+                "Current and future suitability rasters must have identical dimensions."
+            )
         if current_ds.transform != future_ds.transform:
-            raise ValueError("Current and future suitability rasters are not on the same pixel grid.")
+            raise ValueError(
+                "Current and future suitability rasters are not on the same pixel grid."
+            )
         if current_ds.crs != future_ds.crs:
             raise ValueError("Current and future suitability rasters must use the same CRS.")
 
@@ -248,7 +254,9 @@ def compare_suitability_rasters(
     current_path = Path(current_path)
     future_path = Path(future_path)
     classes_output_path = Path(classes_output_path)
-    difference_path = Path(difference_output_path) if difference_output_path is not None else None
+    difference_path = (
+        Path(difference_output_path) if difference_output_path is not None else None
+    )
 
     current, future, valid, profile, transform, crs = _load_suitability_pair(
         current_path,
