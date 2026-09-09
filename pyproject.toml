@@ -46,6 +46,9 @@ geo = [
   "pyproj>=3.6,<3.8",
   "rasterio>=1.4"
 ]
+explain = [
+  "shap>=0.48,<0.50"
+]
 dev = [
   "pytest>=8.0",
   "ruff>=0.6"
