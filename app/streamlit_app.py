@@ -7,16 +7,16 @@ Run locally with:
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-from matplotlib.patches import Patch
 import numpy as np
 import rasterio
-from rasterio.plot import plotting_extent
 import streamlit as st
+from matplotlib.colors import ListedColormap
+from matplotlib.patches import Patch
+from rasterio.plot import plotting_extent
 
 from rangeshift.visualization import RANGE_SHIFT_LABELS
 
