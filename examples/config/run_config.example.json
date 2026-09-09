@@ -1,0 +1,27 @@
+{
+  "training_csv": "data/training.csv",
+  "features": ["bio1", "bio12", "elevation"],
+  "current_layers": {
+    "bio1": "climate/current/bio1.tif",
+    "bio12": "climate/current/bio12.tif",
+    "elevation": "climate/static/elevation.tif"
+  },
+  "future_layers": {
+    "bio1": "climate/future/bio1.tif",
+    "bio12": "climate/future/bio12.tif",
+    "elevation": "climate/static/elevation.tif"
+  },
+  "output_dir": "rangeshift_run",
+  "target": "presence",
+  "latitude_column": "latitude",
+  "longitude_column": "longitude",
+  "seed": 42,
+  "calibration_method": "sigmoid",
+  "threshold_method": "tss",
+  "calibration_cv": 5,
+  "spatial_validation": true,
+  "spatial_block_size_degrees": 1.0,
+  "spatial_test_size": 0.25,
+  "raster_window_size": 512,
+  "dispersal_max_distance_km": null
+}
