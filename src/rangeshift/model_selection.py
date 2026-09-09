@@ -46,25 +46,67 @@ class ModelSelectionResult:
     spatial_groups_used: bool
 
 
-def _validation_scheme(groups, *, n_splits: int, random_state: int):
+def _fold_has_both_classes(y: pd.Series, indices) -> bool:
+    return set(y.iloc[indices].unique().tolist()) == {0, 1}
+
+
+def _validation_splits(
+    X: pd.DataFrame,
+    y: pd.Series,
+    groups,
+    *,
+    n_splits: int,
+    random_state: int,
+    max_group_split_attempts: int = 100,
+):
+    """Materialize reproducible CV folds with both classes in train and test data."""
     if n_splits < 2:
         raise ValueError("n_splits must be at least 2.")
+
     if groups is None:
-        return StratifiedKFold(
+        splitter = StratifiedKFold(
             n_splits=n_splits,
             shuffle=True,
             random_state=random_state,
         )
+        splits = list(splitter.split(X, y))
+        if all(
+            _fold_has_both_classes(y, train_indices)
+            and _fold_has_both_classes(y, test_indices)
+            for train_indices, test_indices in splits
+        ):
+            return splits
+        raise ValueError(
+            "Cross-validation could not place both classes in every fold. "
+            "Reduce n_splits or provide more observations per class."
+        )
 
-    group_series = pd.Series(groups).reset_index(drop=True)
+    group_series = pd.Series(groups, index=X.index)
     if group_series.isna().any():
         raise ValueError("Spatial groups cannot contain missing values.")
     if group_series.nunique() < n_splits:
         raise ValueError("Spatial model tuning requires at least n_splits unique groups.")
-    return StratifiedGroupKFold(
-        n_splits=n_splits,
-        shuffle=True,
-        random_state=random_state,
+    if max_group_split_attempts < 1:
+        raise ValueError("max_group_split_attempts must be at least 1.")
+
+    for attempt in range(max_group_split_attempts):
+        splitter = StratifiedGroupKFold(
+            n_splits=n_splits,
+            shuffle=True,
+            random_state=random_state + attempt,
+        )
+        splits = list(splitter.split(X, y, groups=group_series))
+        if all(
+            _fold_has_both_classes(y, train_indices)
+            and _fold_has_both_classes(y, test_indices)
+            for train_indices, test_indices in splits
+        ):
+            return splits
+
+    raise ValueError(
+        "Could not create grouped cross-validation folds containing both target classes "
+        "in every training and test partition. Reduce n_splits, use smaller spatial "
+        "blocks, or provide broader class coverage across groups."
     )
 
 
@@ -83,8 +125,10 @@ def tune_and_compare_models(
     """Tune Random Forest and Gradient Boosting under one validation design.
 
     When ``groups`` are supplied, complete groups remain together inside a
-    ``StratifiedGroupKFold`` scheme. Balanced sample weights are supplied to both
-    algorithms so the comparison uses the same class-balance treatment.
+    validated ``StratifiedGroupKFold`` design. RangeShift materializes the folds
+    before tuning and requires both classes in every train/test partition so
+    classification metrics such as ROC-AUC remain defined. Balanced sample
+    weights are supplied to both algorithms for a fair comparison.
     """
     feature_columns = list(feature_columns)
     validate_training_frame(frame, feature_columns, target_column)
@@ -104,7 +148,13 @@ def tune_and_compare_models(
     X = frame[feature_columns]
     y = frame[target_column].astype(int)
     sample_weight = compute_sample_weight(class_weight="balanced", y=y)
-    cv = _validation_scheme(groups, n_splits=n_splits, random_state=random_state)
+    cv_splits = _validation_splits(
+        X,
+        y,
+        groups,
+        n_splits=n_splits,
+        random_state=random_state,
+    )
 
     estimators = {
         "random_forest": RandomForestClassifier(
@@ -121,15 +171,13 @@ def tune_and_compare_models(
             estimator,
             param_grid=grids[name],
             scoring=scoring,
-            cv=cv,
+            cv=cv_splits,
             refit=True,
             n_jobs=n_jobs,
             return_train_score=False,
+            error_score="raise",
         )
-        fit_kwargs = {"sample_weight": sample_weight}
-        if groups is not None:
-            fit_kwargs["groups"] = groups
-        search.fit(X, y, **fit_kwargs)
+        search.fit(X, y, sample_weight=sample_weight)
         searches[name] = search
 
         result_frame = pd.DataFrame(search.cv_results_)
