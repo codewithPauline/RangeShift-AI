@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use RangeShift AI in research, please cite the exact software version used."
+type: software
+title: "RangeShift AI"
+version: 0.7.0
+date-released: 2026-09-09
+license: MIT
+authors:
+  - family-names: "Owusu-Ansah"
+    given-names: "Pauline"
+url: "https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.7.0"
+repository-code: "https://github.com/codewithPauline/RangeShift-AI"
+abstract: "A Python toolkit for spatially validated habitat-suitability modeling and climate-driven range-shift analysis."
+keywords:
+  - species distribution modeling
+  - habitat suitability
+  - range shifts
+  - geospatial machine learning
+  - climate change
+  - scientific software
