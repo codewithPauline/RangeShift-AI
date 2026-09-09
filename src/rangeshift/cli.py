@@ -12,6 +12,7 @@ from .data import load_occurrence_table
 from .geospatial import assign_projected_blocks
 from .model import save_model_bundle, train_habitat_model
 from .prediction import load_model_bundle, predict_suitability
+from .range_shift import compare_suitability_rasters
 from .raster import parse_layer_specs, predict_suitability_raster
 from .spatial import compare_random_and_spatial
 from .spatial_cv import spatial_cross_validate
@@ -84,6 +85,35 @@ def build_parser() -> argparse.ArgumentParser:
     plot_raster.add_argument("--boundary", type=Path, default=None)
     plot_raster.add_argument("--dpi", type=int, default=300)
     plot_raster.add_argument("--cmap", default="viridis")
+
+    range_shift = subparsers.add_parser(
+        "range-shift",
+        help="Compare aligned current and future suitability rasters.",
+    )
+    range_shift.add_argument("current_raster", type=Path)
+    range_shift.add_argument("future_raster", type=Path)
+    range_shift.add_argument(
+        "--threshold",
+        type=float,
+        required=True,
+        help="Explicit suitability threshold used to define suitable habitat.",
+    )
+    range_shift.add_argument(
+        "--classes-output",
+        type=Path,
+        default=Path("range_shift_classes.tif"),
+    )
+    range_shift.add_argument(
+        "--difference-output",
+        type=Path,
+        default=None,
+        help="Optional GeoTIFF of future-minus-current suitability.",
+    )
+    range_shift.add_argument(
+        "--summary-output",
+        type=Path,
+        default=Path("range_shift_summary.json"),
+    )
 
     spatial = subparsers.add_parser(
         "compare-spatial",
@@ -196,6 +226,21 @@ def main() -> None:
             cmap=args.cmap,
         )
         print(f"Saved suitability map: {output_path}")
+        return
+
+    if args.command == "range-shift":
+        result = compare_suitability_rasters(
+            args.current_raster,
+            args.future_raster,
+            args.classes_output,
+            threshold=args.threshold,
+            difference_output_path=args.difference_output,
+        )
+        payload = result.to_dict()
+        args.summary_output.parent.mkdir(parents=True, exist_ok=True)
+        args.summary_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        print(f"Saved range-shift summary: {args.summary_output}")
         return
 
     if args.command == "compare-spatial":
