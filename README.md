@@ -5,78 +5,133 @@
 [![CI](https://github.com/codewithPauline/RangeShift-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/codewithPauline/RangeShift-AI/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/version-0.6.0-informational.svg)](pyproject.toml)
 
 ## Why RangeShift AI?
 
-Species ranges are not static. Climate, land use, topography, and other environmental pressures can alter where suitable habitat exists. RangeShift AI is being built as a transparent, reproducible toolkit that connects species occurrence data, environmental predictors, machine learning, spatial validation, probability calibration, raster projection, and future range-change analysis.
+Species ranges are not static. Climate, topography, land use, and other environmental pressures can change where suitable habitat exists. RangeShift AI is a reproducible Python toolkit that connects species occurrence data, environmental predictors, geospatial machine learning, spatial validation, probability calibration, raster projection, model interpretation, and future range-change analysis.
 
-The project is deliberately designed so ecological assumptions remain visible. RangeShift does not hide spatial validation, threshold choice, probability calibration, raster preprocessing, or range-change definitions inside a black box.
+The project is deliberately designed so ecological assumptions remain visible. RangeShift does not hide spatial validation, threshold choice, probability calibration, raster alignment, environmental extrapolation, or range-change definitions inside a black box.
 
 ## Project status
 
-**Active development — v0.5 probability calibration and defensible threshold selection.**
+**Active development — v0.6.0. Phases 1–5 of the core roadmap are complete and covered by automated tests.**
 
-RangeShift AI now supports this end-to-end workflow:
+RangeShift now supports an end-to-end workflow from real occurrence/environmental data to interpretable range-shift outputs:
 
 ```text
-Occurrence/background data
-        ↓
-Train / validation / test separation
-        ↓
-Random Forest + probability calibration
-        ↓
-Threshold selection on validation data
-        ↓
-Final test evaluation
-        ↓
-Spatial validation
-        ↓
-Current environmental rasters ──→ Current suitability GeoTIFF
-        ↓
-Future environmental rasters  ──→ Future suitability GeoTIFF
-        ↓
-Explicit selected suitability threshold
-        ↓
-Stable / Lost / Gained / Stable-suitable habitat
-        ↓
-Area change + overlap + centroid shift
-        ↓
-GeoTIFFs + CSV/JSON diagnostics + high-resolution maps
+GBIF / occurrence records + environmental predictors
+                     ↓
+          Input and coordinate validation
+                     ↓
+       Sampling-bias diagnostics + spatial blocks
+                     ↓
+ Random Forest ↔ Gradient Boosting model comparison
+                     ↓
+     Hyperparameter tuning / spatial-group CV
+                     ↓
+       Probability calibration + threshold selection
+                     ↓
+    SHAP + partial-dependence interpretation
+                     ↓
+        Environmental extrapolation checks
+                     ↓
+       Current environmental raster stack
+                     ↓
+        Current suitability probability
+                     │
+                     ├──────── compare ────────┐
+                     │                          │
+       Future environmental raster stack       │
+                     ↓                          │
+        Future suitability probability          │
+                     └──────────────────────────┘
+                                ↓
+                     Explicit selected threshold
+                                ↓
+              Stable / Lost / Gained / Stable-suitable
+                                ↓
+                  Area + overlap + centroid shift
+                                ↓
+             GeoTIFFs + CSV/JSON + high-resolution maps
 ```
 
-### Current capabilities
+## Current capabilities
 
-- load and validate occurrence/background CSV data;
-- train a class-balanced `RandomForestClassifier`;
-- report ROC-AUC, accuracy, precision, recall, and F1;
-- rank environmental predictors by feature importance;
-- save and reload trained model bundles;
-- calibrate Random Forest probabilities with sigmoid or isotonic calibration;
-- keep training, validation, and final test partitions separate;
-- select thresholds from validation predictions using TSS, Youden J, F1, or balanced accuracy;
-- report sensitivity, specificity, precision, recall, F1, balanced accuracy, and predicted-positive rate across thresholds;
-- report Brier score, log loss, and ROC-AUC for calibrated and uncalibrated test probabilities;
-- save calibrated models using the same bundle contract as the raster pipeline;
-- predict continuous habitat-suitability probabilities for tabular data;
-- compare random and spatial holdout performance;
-- run repeated spatial block cross-validation;
-- create projected kilometer-scale spatial blocks;
-- validate aligned environmental raster stacks;
-- predict 0–1 suitability across geographic raster grids;
-- export compressed suitability GeoTIFFs and high-resolution maps;
-- compare aligned current and future suitability rasters;
-- classify cells as stable unsuitable, lost, gained, or stable suitable;
-- calculate gained, lost, stable, and net suitable area;
-- calculate area-weighted Jaccard overlap;
-- calculate current/future geographic centroids and shift distance/bearing;
-- calculate cell area correctly for both projected and geographic CRSs;
-- render discrete range-shift transition maps;
-- expose all major workflows through a command-line interface;
-- test core and geospatial functionality automatically with GitHub Actions.
+### Data and ecological diagnostics
+
+- validate binary presence/background training tables;
+- validate latitude/longitude coordinates;
+- quantify duplicate coordinates and spatial sampling concentration;
+- report nearest-neighbor distance distributions;
+- provide a reproducible real ecological example using GBIF occurrences and WorldClim 2.1 predictors;
+- preserve provenance information instead of committing large downloaded climate files.
+
+### Spatial validation
+
+- degree-based geographic blocking;
+- projected kilometer-scale blocks;
+- local UTM estimation and user-specified projected EPSG support;
+- random-vs-spatial holdout comparison;
+- repeated spatial cross-validation;
+- grouped model tuning that keeps spatial groups together;
+- explicit validation that both target classes occur in every model-selection fold;
+- high-resolution train/test spatial split visualization.
+
+### Machine learning and model selection
+
+- class-balanced Random Forest baseline;
+- Gradient Boosting comparison model;
+- grid-search hyperparameter tuning;
+- ROC-AUC, accuracy, precision, recall, F1, and balanced-accuracy evaluation;
+- feature-importance reporting;
+- common saved-model bundle contract across supported estimators.
+
+### Calibration and threshold selection
+
+- separate training, validation, and final test partitions;
+- sigmoid or isotonic probability calibration;
+- TSS / Youden J threshold selection;
+- F1 and balanced-accuracy threshold selection;
+- sensitivity, specificity, precision, recall, F1, and predicted-positive-rate diagnostics across candidate thresholds;
+- Brier score, log loss, and ROC-AUC for calibrated and uncalibrated probabilities;
+- threshold selection on validation data only, never the final test set.
+
+### Explainability and environmental transfer
+
+- one-dimensional partial-dependence response curves;
+- optional Tree SHAP feature attribution for supported fitted tree models;
+- training-envelope environmental extrapolation diagnostics;
+- row-level counts/fractions of predictors outside the training range;
+- feature-level summaries of projection values beyond the observed training envelope.
+
+### Raster prediction and mapping
+
+- strict predictor-name matching between model and rasters;
+- dimensions, CRS, affine-transform, nodata, and alignment validation;
+- continuous 0–1 suitability prediction across raster grids;
+- in-memory prediction for moderate grids;
+- bounded-memory windowed prediction for large rasters;
+- nodata propagation;
+- compressed `float32` GeoTIFF export;
+- high-resolution suitability maps and optional vector-boundary overlays.
+
+### Current-to-future range shifts
+
+- aligned current/future suitability comparison;
+- explicit threshold requirement;
+- stable unsuitable, lost, gained, and stable suitable classes;
+- continuous future-minus-current suitability raster;
+- physically meaningful area calculations for projected and geographic CRSs;
+- current/future suitable area, gained area, lost area, stable area, and net change;
+- Jaccard overlap;
+- area-weighted geographic centroids;
+- centroid shift distance and bearing;
+- JSON summary output and discrete transition maps.
 
 ## Roadmap
 
-### Phase 1 — Current habitat suitability
+### Phase 1 — Current habitat suitability ✅
 - [x] Project architecture
 - [x] Random Forest baseline
 - [x] Model evaluation
@@ -84,9 +139,9 @@ GeoTIFFs + CSV/JSON diagnostics + high-resolution maps
 - [x] Model persistence and prediction
 - [x] CLI entry point
 - [x] Automated tests and CI
-- [ ] Real ecological example dataset
+- [x] Reproducible real ecological example using GBIF + WorldClim
 
-### Phase 2 — Spatial intelligence
+### Phase 2 — Spatial intelligence ✅
 - [x] Coordinate validation
 - [x] Degree-based spatial blocks
 - [x] Spatially separated train/test evaluation
@@ -94,19 +149,19 @@ GeoTIFFs + CSV/JSON diagnostics + high-resolution maps
 - [x] Repeated spatial cross-validation
 - [x] GeoPandas integration
 - [x] Projected spatial blocks measured in kilometers
-- [ ] Sampling-bias diagnostics
-- [ ] Train/test block visualization
+- [x] Sampling-bias diagnostics
+- [x] Train/test block visualization
 
-### Phase 3 — Environmental rasters and mapping
+### Phase 3 — Environmental rasters and mapping ✅
 - [x] Read aligned raster predictors
 - [x] Validate dimensions, CRS, transform, nodata, and feature names
 - [x] Predict suitability across a raster grid
 - [x] Export suitability GeoTIFFs
 - [x] Render high-resolution suitability maps
 - [x] Optional vector boundary overlay
-- [ ] Windowed prediction for very large rasters
+- [x] Windowed prediction for very large rasters
 
-### Phase 4 — Future range-shift projection
+### Phase 4 — Future range-shift projection ✅
 - [x] Current and future suitability raster comparison
 - [x] Explicit threshold requirement
 - [x] Stable / gained / lost habitat classes
@@ -119,7 +174,7 @@ GeoTIFFs + CSV/JSON diagnostics + high-resolution maps
 - [x] Range-shift transition map
 - [x] JSON summary output
 
-### Phase 5 — Explainable and robust ML
+### Phase 5 — Explainable and robust ML ✅
 - [x] Threshold diagnostics across candidate cutoffs
 - [x] TSS / Youden J threshold selection
 - [x] F1 and balanced-accuracy threshold selection
@@ -127,27 +182,27 @@ GeoTIFFs + CSV/JSON diagnostics + high-resolution maps
 - [x] Sigmoid and isotonic probability calibration
 - [x] Brier score and log-loss reporting
 - [x] Calibration diagnostic table
-- [ ] Hyperparameter tuning
-- [ ] Gradient-boosted comparison model
-- [ ] SHAP-based interpretation
-- [ ] Partial dependence / response curves
-- [ ] Environmental extrapolation diagnostics
+- [x] Hyperparameter tuning
+- [x] Gradient-boosted comparison model
+- [x] SHAP-based interpretation
+- [x] Partial dependence / response curves
+- [x] Environmental extrapolation diagnostics
 
 ### Phase 6 — Ecological safeguards and productization
 - [ ] Pseudo-absence/background generation strategies
 - [ ] Spatial thinning
 - [ ] Environmental collinearity diagnostics
-- [ ] Novel-climate warnings
+- [ ] Multivariate novel-climate / MESS-style warnings
 - [ ] Dispersal constraints
 - [ ] Reproducible configuration files
 - [ ] Interactive visualization interface
 - [ ] Packaged release
 
-See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the detailed scientific and development plan.
+See [`docs/ROADMAP.md`](docs/ROADMAP.md) for the detailed scientific and development history.
 
 ## Installation
 
-Install the lightweight ML core:
+Clone the repository and install the lightweight ML core:
 
 ```bash
 git clone https://github.com/codewithPauline/RangeShift-AI.git
@@ -156,19 +211,57 @@ python -m venv .venv
 pip install -e .
 ```
 
-Install geospatial support:
+Geospatial support:
 
 ```bash
 pip install -e ".[geo]"
 ```
 
-For development and testing:
+Optional SHAP support:
 
 ```bash
-pip install -e ".[dev,geo]"
+pip install -e ".[explain]"
 ```
 
-## Tabular input format
+Full geospatial + explainability environment:
+
+```bash
+pip install -e ".[geo,explain]"
+```
+
+Development environment:
+
+```bash
+pip install -e ".[dev,geo,explain]"
+```
+
+## Real ecological example
+
+A real-data preparation workflow is included at [`examples/real_ecology/`](examples/real_ecology/README.md).
+
+By default it uses the spotted salamander, *Ambystoma maculatum*, and:
+
+1. resolves the species using GBIF's current species matcher;
+2. retrieves georeferenced GBIF presence records;
+3. downloads WorldClim 2.1 bioclimatic layers;
+4. extracts BIO1, BIO12, and BIO15 at occurrence locations;
+5. creates climate-valid background points within the observed study extent;
+6. writes a RangeShift-ready training CSV and provenance JSON.
+
+```bash
+python examples/real_ecology/prepare_gbif_worldclim.py \
+  --species "Ambystoma maculatum" \
+  --country US \
+  --max-records 500 \
+  --background 500 \
+  --output-dir real_ecology_output
+```
+
+Downloaded data are ignored by Git. The script is the reproducible artifact; large climate rasters and changing API search results are not frozen into repository history.
+
+> **Research-use note:** the example is designed for transparent demonstration, not as a universal publication-ready SDM protocol. Publication work should use a citable GBIF download DOI and justify taxonomic filters, background sampling, spatial thinning, predictor selection, and validation design.
+
+## Expected tabular input
 
 ```csv
 presence,bio1,bio12,elevation,latitude,longitude
@@ -178,42 +271,44 @@ presence,bio1,bio12,elevation,latitude,longitude
 0,20.4,540,80,36.43,-85.51
 ```
 
-`presence` should contain `1` for observed/presence records and `0` for background or absence records.
+`presence` must contain `1` for observed/presence records and `0` for absence or background records.
 
-> **Scientific note:** pseudo-absence/background generation can materially affect species-distribution models. RangeShift does not yet generate these points automatically; that choice remains explicit.
+## Command-line examples
 
-## Threshold and calibration design
-
-RangeShift does not choose a threshold from the final test set.
-
-The v0.5 calibrated workflow uses three partitions:
-
-1. **Training** — fit the Random Forest and perform cross-validated probability calibration.
-2. **Validation** — choose the suitability threshold using an explicit metric.
-3. **Test** — report final probability and threshold-based performance once, after the threshold is frozen.
-
-Supported threshold criteria are `tss`, `youden_j`, `f1`, and `balanced_accuracy`. Probability calibration supports `sigmoid` and `isotonic` methods.
-
-A lower Brier score or log loss indicates better probabilistic accuracy, but calibration is not assumed to improve every dataset. RangeShift reports both calibrated and uncalibrated test probability metrics so the effect remains inspectable.
-
-## Raster requirements
-
-Raster prediction expects one single-band raster per trained feature. RangeShift verifies matching dimensions, CRS, affine transform, valid coverage, and model feature names. RangeShift deliberately does **not** silently reproject, crop, or resample mismatched environmental layers.
-
-Current and future suitability rasters used in range-shift analysis must also be aligned to exactly the same grid and CRS.
-
-## Command-line usage
-
-### Train a baseline model
+### Diagnose spatial sampling bias
 
 ```bash
-rangeshift train data.csv \
-  --target presence \
-  --features bio1 bio12 elevation \
-  --output model.joblib
+rangeshift diagnose-bias data.csv \
+  --block-size 1.0 \
+  --summary-output sampling_bias_summary.json
 ```
 
-### Train a calibrated model and select a threshold
+### Compare random and spatial evaluation and render the split
+
+```bash
+rangeshift compare-spatial data.csv \
+  --target presence \
+  --features bio1 bio12 elevation \
+  --block-size 1.0 \
+  --output spatial_comparison.json \
+  --plot-output spatial_holdout.png
+```
+
+### Tune Random Forest vs Gradient Boosting
+
+```bash
+rangeshift tune-models data.csv \
+  --target presence \
+  --features bio1 bio12 elevation \
+  --spatial-groups \
+  --block-size 1.0 \
+  --scoring roc_auc \
+  --output selected_model.joblib
+```
+
+When `--spatial-groups` is used, entire geographic blocks stay together during tuning. RangeShift rejects a grouped split if any train/test fold lacks one of the target classes.
+
+### Calibrate probabilities and select a threshold
 
 ```bash
 rangeshift calibrate data.csv \
@@ -221,55 +316,54 @@ rangeshift calibrate data.csv \
   --features bio1 bio12 elevation \
   --calibration-method sigmoid \
   --threshold-method tss \
-  --output calibrated_model.joblib \
-  --threshold-output threshold_diagnostics.csv \
-  --calibration-output calibration_diagnostics.csv \
-  --summary-output calibration_summary.json
+  --output calibrated_model.joblib
 ```
 
-The selected threshold is chosen from the validation partition and then evaluated on an untouched final test partition.
+Thresholds are selected from the validation partition and evaluated only afterward on the untouched final test partition.
 
-### Select a threshold from existing validation predictions
-
-If a CSV already contains observed labels and validation probabilities:
+### Partial-dependence response curves
 
 ```bash
-rangeshift select-threshold validation_predictions.csv \
-  --target presence \
-  --probability suitability \
-  --method tss \
-  --output threshold_diagnostics.csv
+rangeshift response-curves selected_model.joblib data.csv \
+  --table-output partial_dependence.csv \
+  --plot-output response_curves.png
 ```
 
-### Compare random and spatial evaluation
+### Tree SHAP importance
 
 ```bash
-rangeshift compare-spatial data.csv \
-  --target presence \
+rangeshift shap-importance selected_model.joblib data.csv \
+  --max-samples 500 \
+  --output shap_importance.csv
+```
+
+Tree SHAP is an optional extra and is intended for supported fitted tree estimators such as RangeShift's Random Forest and Gradient Boosting models.
+
+### Diagnose environmental extrapolation
+
+```bash
+rangeshift diagnose-extrapolation training_environment.csv future_environment.csv \
   --features bio1 bio12 elevation \
-  --block-size 1.0 \
-  --output spatial_comparison.json
+  --row-output extrapolation_rows.csv \
+  --feature-output extrapolation_features.csv
 ```
 
-### Predict current and future suitability
+The current diagnostic is deliberately transparent: it identifies predictor values outside the observed univariate training envelope. It is not presented as a full multivariate MESS analysis.
+
+### Predict a large raster in bounded-memory windows
 
 ```bash
-rangeshift predict-raster calibrated_model.joblib \
+rangeshift predict-raster selected_model.joblib \
   --layer bio1=current/bio1.tif \
   --layer bio12=current/bio12.tif \
   --layer elevation=current/elevation.tif \
+  --window-size 512 \
   --output current_suitability.tif
-
-rangeshift predict-raster calibrated_model.joblib \
-  --layer bio1=future/bio1.tif \
-  --layer bio12=future/bio12.tif \
-  --layer elevation=future/elevation.tif \
-  --output future_suitability.tif
 ```
 
-### Quantify the range shift
+RangeShift still requires predictor rasters to be aligned before prediction. It deliberately does **not** silently crop, reproject, or resample ecological predictors.
 
-Pass the selected threshold explicitly:
+### Quantify current-to-future range change
 
 ```bash
 rangeshift range-shift \
@@ -281,7 +375,7 @@ rangeshift range-shift \
   --summary-output range_shift_summary.json
 ```
 
-The transition raster uses these class codes:
+The transition raster uses:
 
 | Code | Interpretation |
 | ---: | --- |
@@ -291,63 +385,62 @@ The transition raster uses these class codes:
 | 3 | Stable suitable habitat |
 | 255 | Nodata |
 
-### Render the range-shift map
+## Scientific design decisions
 
-```bash
-rangeshift plot-range-shift range_shift_classes.tif \
-  --title "Projected habitat range shift" \
-  --output range_shift_map.png \
-  --dpi 300
-```
+### Spatial validation
 
-## Area and centroid calculations
+Random train/test splits can overstate performance when nearby records share environmental and spatial structure. RangeShift therefore supports complete spatial-block holdouts, repeated spatial validation, and spatial-group model tuning.
 
-RangeShift does not treat map degrees as physical distance.
+### Thresholds
 
-- For **projected CRSs**, cell area is calculated from the affine transform and CRS linear units.
-- For **geographic CRSs**, each cell area is calculated geodesically on the ellipsoid.
-- Suitable-range centroids are area-weighted and calculated geographically.
-- Centroid movement is reported as geodesic distance in kilometers and forward bearing in degrees.
+RangeShift never silently assumes `0.5` defines suitable habitat. Threshold selection is an explicit validation-stage decision using TSS, Youden J, F1, or balanced accuracy.
 
-## Python example
+### Calibration
 
-```python
-from rangeshift.calibration import train_calibrated_habitat_model
+Calibration is not assumed to improve every dataset. RangeShift reports calibrated and uncalibrated probability metrics so the effect can be inspected rather than presumed.
 
-result = train_calibrated_habitat_model(
-    frame,
-    feature_columns=["bio1", "bio12", "elevation"],
-    calibration_method="sigmoid",
-    threshold_method="tss",
-)
+### Raster area
 
-print(result.selected_threshold)
-print(result.test_probability_metrics)
-print(result.test_classification_metrics)
-```
+Map degrees are not treated as physical distance. Projected rasters use CRS linear units, while geographic raster cells use ellipsoidal geodesic area calculations.
+
+### Extrapolation
+
+A model can output a probability in an environmental regime it never encountered during training. RangeShift therefore exposes predictor-envelope extrapolation before those projections are interpreted biologically.
+
+## Scientific interpretation
+
+A predicted range shift is a **scenario-conditioned habitat-suitability projection**, not a guaranteed future distribution. Results depend on occurrence sampling, background/absence design, environmental predictors, model choice, validation design, calibration, threshold choice, future scenario, and transferability of modeled environment–occurrence relationships.
+
+Realized distributions may also be constrained by dispersal, barriers, biotic interactions, demography, adaptation, detectability, land-use change, and environmental novelty. Those limitations are part of the analysis, not footnotes to hide.
+
+## Automated quality checks
+
+GitHub Actions tests:
+
+- Python 3.10;
+- Python 3.11;
+- Python 3.12;
+- geospatial extras including Rasterio/GeoPandas/PyProj/Matplotlib workflows;
+- explainability extras including SHAP.
+
+Ruff linting runs on the core Python matrix before tests.
 
 ## Runnable demonstrations
 
 - [`examples/train_demo.py`](examples/train_demo.py) — baseline supervised learning.
-- [`examples/spatial_demo.py`](examples/spatial_demo.py) — random vs. spatial evaluation.
-- [`examples/raster_demo.py`](examples/raster_demo.py) — raster prediction and suitability map.
+- [`examples/spatial_demo.py`](examples/spatial_demo.py) — random vs spatial evaluation.
+- [`examples/raster_demo.py`](examples/raster_demo.py) — raster suitability prediction.
 - [`examples/range_shift_demo.py`](examples/range_shift_demo.py) — synthetic current-to-future range shift.
 - [`examples/calibration_demo.py`](examples/calibration_demo.py) — calibration and validation-based threshold selection.
-
-## Scientific interpretation
-
-A predicted range shift is a **scenario-conditioned suitability projection**, not a guaranteed future distribution. The result depends on the fitted model, environmental predictors, scenario, threshold choice, sampling design, and transferability of environment–occurrence relationships.
-
-Calibration improves interpretation of model probabilities only when it is supported by the data; RangeShift therefore reports before/after probability metrics rather than assuming calibration is beneficial. Likewise, threshold choice is treated as a model decision that must be selected on validation data and disclosed.
-
-Realized ranges may also be constrained by dispersal, barriers, biotic interactions, demography, adaptation, land-use change, detectability, and environmental novelty.
+- [`examples/real_ecology/`](examples/real_ecology/README.md) — real GBIF + WorldClim ecological data preparation.
 
 ## Design principles
 
-1. **Reproducibility** — identical inputs and seeds should reproduce baseline results.
-2. **Scientific transparency** — assumptions, calibration choices, and thresholds remain visible.
-3. **Software quality** — modular, tested code instead of one monolithic notebook.
-4. **Interpretability** — performance, spatial transfer, probabilities, and range-change outputs are inspectable.
+1. **Reproducibility** — inputs, seeds, assumptions, and provenance should be inspectable.
+2. **Scientific transparency** — spatial validation, calibration, thresholds, and extrapolation stay visible.
+3. **Software quality** — modular functions, CLI workflows, tests, and CI instead of a monolithic notebook.
+4. **Interpretability** — performance, feature effects, probabilities, and range-change outputs should be explainable.
+5. **Explicit preprocessing** — RangeShift validates geospatial assumptions instead of silently altering data.
 
 ## Author
 
@@ -356,4 +449,4 @@ Ph.D. researcher in computational and evolutionary biology
 
 ## License
 
-This project is released under the **MIT License**. See [LICENSE](LICENSE) for the full license text.
+RangeShift AI is released under the **MIT License**. See [LICENSE](LICENSE) for the full license text.

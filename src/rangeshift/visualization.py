@@ -1,4 +1,4 @@
-"""Visualization utilities for RangeShift habitat-suitability rasters."""
+"""Visualization utilities for RangeShift habitat-suitability and spatial outputs."""
 
 from __future__ import annotations
 
@@ -187,6 +187,90 @@ def plot_range_shift_map(
     )
     axis.set_title(title)
     _set_map_axes(axis, raster_crs)
+    figure.tight_layout()
+
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=dpi, bbox_inches="tight")
+    plt.close(figure)
+    return output_path
+
+
+def plot_spatial_split(
+    frame,
+    train_indices,
+    test_indices,
+    output_path: str | Path,
+    *,
+    latitude_column: str = "latitude",
+    longitude_column: str = "longitude",
+    block_size_degrees: float | None = None,
+    title: str = "Spatial train/test holdout",
+    dpi: int = 300,
+) -> Path:
+    """Plot observations used for spatial training and held-out evaluation.
+
+    When ``block_size_degrees`` is supplied, transparent grid lines show the
+    geographic blocking scheme used by the baseline spatial splitter.
+    """
+    try:
+        import matplotlib.pyplot as plt
+        import numpy as np
+    except ImportError as exc:
+        raise ImportError(
+            "Spatial split visualization requires Matplotlib and NumPy. "
+            "Install RangeShift with the 'geo' optional dependency."
+        ) from exc
+
+    from .spatial import validate_coordinates
+
+    validate_coordinates(frame, latitude_column, longitude_column)
+    if dpi < 72:
+        raise ValueError("dpi must be at least 72.")
+    if block_size_degrees is not None and block_size_degrees <= 0:
+        raise ValueError("block_size_degrees must be greater than zero when supplied.")
+
+    train_indices = np.asarray(train_indices, dtype=int)
+    test_indices = np.asarray(test_indices, dtype=int)
+    if np.intersect1d(train_indices, test_indices).size:
+        raise ValueError("Train and test indices must not overlap.")
+
+    train = frame.iloc[train_indices]
+    test = frame.iloc[test_indices]
+    figure, axis = plt.subplots(figsize=(8.5, 6.5))
+    axis.scatter(
+        train[longitude_column],
+        train[latitude_column],
+        s=24,
+        alpha=0.75,
+        label="Training observations",
+    )
+    axis.scatter(
+        test[longitude_column],
+        test[latitude_column],
+        s=42,
+        marker="^",
+        alpha=0.9,
+        label="Held-out observations",
+    )
+
+    if block_size_degrees is not None:
+        lon_min = float(frame[longitude_column].min())
+        lon_max = float(frame[longitude_column].max())
+        lat_min = float(frame[latitude_column].min())
+        lat_max = float(frame[latitude_column].max())
+        lon_start = np.floor((lon_min + 180.0) / block_size_degrees) * block_size_degrees - 180.0
+        lat_start = np.floor((lat_min + 90.0) / block_size_degrees) * block_size_degrees - 90.0
+        for longitude in np.arange(lon_start, lon_max + block_size_degrees, block_size_degrees):
+            axis.axvline(longitude, linewidth=0.5, alpha=0.25)
+        for latitude in np.arange(lat_start, lat_max + block_size_degrees, block_size_degrees):
+            axis.axhline(latitude, linewidth=0.5, alpha=0.25)
+
+    axis.set_xlabel("Longitude")
+    axis.set_ylabel("Latitude")
+    axis.set_title(title)
+    axis.legend(frameon=True)
+    axis.set_aspect("equal", adjustable="datalim")
     figure.tight_layout()
 
     output_path = Path(output_path)
