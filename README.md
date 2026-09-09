@@ -1,6 +1,6 @@
 # RangeShift AI
 
-> **Released geospatial machine-learning software for habitat suitability modeling and transparent current-to-future range-shift analysis.**
+> **A Python toolkit for spatially validated habitat-suitability modeling and climate-driven range-shift analysis.**
 
 [![Latest Release](https://img.shields.io/github/v/release/codewithPauline/RangeShift-AI?label=Latest%20Release&sort=semver)](https://github.com/codewithPauline/RangeShift-AI/releases/latest)
 [![CI](https://github.com/codewithPauline/RangeShift-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/codewithPauline/RangeShift-AI/actions/workflows/ci.yml)
