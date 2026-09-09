@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from hashlib import sha256
-import json
 from pathlib import Path
 
 from .calibration import save_calibrated_model_bundle, train_calibrated_habitat_model
@@ -256,7 +256,9 @@ def run_configured_analysis(config: RunConfig) -> ConfigRunResult:
         difference_output_path=difference_path,
     )
     range_summary_path = output_dir / "range_shift_summary.json"
-    range_summary_path.write_text(json.dumps(range_shift.to_dict(), indent=2, sort_keys=True) + "\n")
+    range_summary_path.write_text(
+        json.dumps(range_shift.to_dict(), indent=2, sort_keys=True) + "\n"
+    )
 
     config_hash = _config_hash(config)
     manifest = {
