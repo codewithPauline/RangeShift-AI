@@ -20,16 +20,6 @@ Implemented:
 - automated unit tests;
 - GitHub Actions CI.
 
-Core concepts:
-
-- features vs. target;
-- training vs. test data;
-- classification probability vs. class label;
-- why accuracy alone is insufficient;
-- ROC-AUC and class imbalance;
-- Random Forest feature importance;
-- overfitting.
-
 ## v0.2 — Spatial intelligence
 
 **Goal:** test whether model performance survives geographic separation between training and evaluation data.
@@ -37,21 +27,17 @@ Core concepts:
 Implemented:
 
 - latitude/longitude input validation;
-- deterministic geographic grid-block assignment;
-- group-aware holdout with complete blocks reserved for testing;
-- explicit prevention of train/test block overlap;
-- repeated attempts to obtain valid two-class spatial partitions;
+- geographic spatial blocks;
+- complete held-out block evaluation;
 - random-vs-spatial performance comparison;
-- metric deltas showing how performance changes under spatial transfer;
-- repeated spatial block cross-validation;
-- optional conversion to WGS84 GeoPandas `GeoDataFrame` objects;
-- local UTM estimation for regional data;
-- projected spatial blocks measured in kilometers;
+- repeated spatial cross-validation;
+- WGS84 GeoPandas conversion;
+- local UTM estimation;
+- projected kilometer-scale spatial blocks;
 - user-specified projected EPSG support;
-- command-line workflows for comparison, cross-validation, and projected blocks;
 - automated core and geospatial tests.
 
-Important interpretation:
+Why it matters:
 
 Spatial autocorrelation can make a species-distribution model appear more accurate when geographically nearby observations are split randomly between training and testing. Spatially separated evaluation makes that potential optimism visible.
 
@@ -59,73 +45,82 @@ Remaining spatial improvements:
 
 1. Sampling-bias and spatial clustering diagnostics.
 2. Maps showing train/test blocks and observations.
-3. Additional strategies for studies spanning multiple projection zones or global extents.
+3. More general blocking strategies for continental and global studies.
 
 ## v0.3 — Raster suitability prediction and mapping
 
-**Goal:** project a trained habitat-suitability model across a geographic environmental grid and render the result clearly.
+**Goal:** project a trained habitat-suitability model across an environmental raster grid and render the result clearly.
 
 Implemented:
 
-- one single-band environmental raster per trained model predictor;
-- exact predictor-name matching against the saved model bundle;
-- strict raster alignment checks for dimensions, CRS, and affine transform;
-- nodata and non-finite predictor masking;
-- conversion of complete raster cells to model predictor rows;
-- suitability probability prediction for every valid cell;
-- reconstruction of predictions into the original raster grid;
+- one single-band raster per trained predictor;
+- exact predictor-name matching;
+- strict dimensions, CRS, and affine-transform checks;
+- nodata and non-finite masking;
+- cell-wise suitability probability prediction;
 - compressed `float32` GeoTIFF export;
-- output band description and metadata tags;
-- `predict-raster` command-line workflow;
-- high-resolution PNG map rendering with a fixed 0–1 suitability scale;
-- CRS-aware coordinate-axis labels;
-- optional vector study-area boundary overlay with automatic CRS reprojection;
-- `plot-raster` command-line workflow;
-- a fully synthetic end-to-end raster and map demonstration;
-- Rasterio and Matplotlib included in the optional geospatial installation;
-- automated tests for raster prediction and map rendering.
+- `predict-raster` command;
+- fixed 0–1 high-resolution suitability maps;
+- CRS-aware map axes;
+- optional vector-boundary overlay;
+- `plot-raster` command;
+- synthetic end-to-end raster demonstration;
+- automated raster and map-rendering tests.
 
 Scientific design choice:
 
-RangeShift does not silently resample, crop, or reproject mismatched environmental layers. Those preprocessing choices can affect model projections and should be explicit and reproducible.
+RangeShift does not silently crop, reproject, or resample mismatched environmental rasters. Those preprocessing choices remain explicit.
 
-Current implementation limitation:
+Current limitation:
 
-The v0.3 engine loads the full environmental predictor stack into memory. This is appropriate for moderate regional datasets but should be replaced or supplemented with windowed/chunked processing for very large rasters.
+The raster engine currently loads full predictor stacks into memory. Windowed processing is still needed for very large continental or global grids.
 
-Next raster improvements:
+## v0.4 — Current-to-future range-shift analysis
 
-1. Windowed prediction for large raster stacks.
-2. Observation and training/testing overlays.
-3. Additional publication-layout controls such as scale bars and boundary styling.
-4. Raster-stack diagnostics that summarize valid coverage and predictor ranges.
+**Goal:** quantify how threshold-defined suitable habitat changes between aligned current and future suitability surfaces.
 
-## v0.4 — Current vs. future environments
+Implemented:
 
-**Goal:** turn habitat suitability into a range-shift analysis.
+- aligned current/future suitability-raster validation;
+- explicit required suitability threshold;
+- stable unsuitable, lost, gained, and stable suitable habitat classes;
+- compressed `uint8` transition GeoTIFF;
+- continuous future-minus-current suitability GeoTIFF;
+- projected-CRS cell area using linear-unit conversion;
+- geodesic cell-area calculation for geographic CRSs;
+- current and future suitable-area estimates;
+- gained, lost, stable, and net range-area change;
+- percent area change relative to current suitability;
+- area-weighted Jaccard overlap;
+- area-weighted geographic centroids;
+- geodesic centroid shift distance;
+- centroid shift bearing;
+- JSON summary output;
+- discrete four-class range-shift map;
+- `range-shift` and `plot-range-shift` CLI workflows;
+- fully synthetic current-to-future demonstration;
+- automated calculation and rendering tests.
+
+Scientific design choices:
+
+1. RangeShift does not silently interpret probability `0.5` as suitable habitat. A threshold must be supplied explicitly.
+2. The continuous future-minus-current suitability surface is retained alongside threshold-based transition classes.
+3. Geographic raster cells are not treated as equal-area; their physical areas are calculated geodesically.
+4. Centroid movement describes the center of modeled suitable area, not organismal dispersal distance.
+
+## v0.5 — Better ML, thresholds, and explainability
+
+**Goal:** make model selection and threshold choice more defensible and interpretable.
 
 Planned:
 
-- accept future environmental raster stacks;
-- apply the same fitted model to current and future layers;
-- calculate per-cell suitability change;
-- classify stable, gained, and lost suitable habitat;
-- estimate total area gained/lost;
-- calculate current/future suitable-range centroids;
-- report shift distance and bearing.
-
-A major methodological issue in this phase will be **threshold selection**: continuous suitability must not be converted into suitable/unsuitable habitat using an arbitrary cutoff without making that decision visible.
-
-## v0.5 — Better ML and explainability
-
-Planned:
-
+- threshold-selection methods based on validation data;
+- sensitivity/specificity trade-off reporting;
+- probability calibration;
 - hyperparameter tuning;
 - gradient-boosted tree comparison;
-- probability calibration;
-- threshold-selection methods;
 - SHAP interpretation;
-- partial dependence/response curves;
+- partial dependence / response curves;
 - model comparison reports.
 
 ## v0.6 — Ecological safeguards
@@ -135,10 +130,21 @@ Planned:
 - pseudo-absence/background sampling strategies;
 - spatial thinning;
 - environmental collinearity diagnostics;
-- extrapolation/novel-climate warnings;
-- multivariate environmental similarity analysis;
+- sampling-bias diagnostics;
+- environmental extrapolation and novel-climate warnings;
 - uncertainty summaries;
 - optional dispersal constraints.
+
+## v0.7 — Scale and reproducibility
+
+Planned:
+
+- windowed/chunked raster prediction;
+- configuration-driven workflows;
+- provenance metadata for scenarios and predictors;
+- reproducible run manifests;
+- batch scenario comparison;
+- exportable report tables and figures.
 
 ## v1.0 — Reproducible RangeShift workflow
 
@@ -151,9 +157,11 @@ Expected v1.0 outputs:
 - current suitability raster;
 - future suitability raster;
 - gain/loss/stability raster;
+- continuous suitability-change raster;
 - range-area summary;
 - centroid shift distance and direction;
 - model interpretation;
+- uncertainty and extrapolation diagnostics;
 - reproducible metadata and configuration;
 - exportable figures and tables.
 
