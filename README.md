@@ -571,6 +571,26 @@ The six-phase public roadmap is complete. The next work is **hardening rather th
 4. **Interpretability** — performance, feature effects, probabilities, transfer warnings, and range-change outputs should be explainable.
 5. **Explicit geospatial processing** — RangeShift validates alignment assumptions instead of silently altering environmental data.
 
+## Citation
+
+If RangeShift AI contributes to an analysis, please cite the **exact software version used**. For the current release:
+
+> Owusu-Ansah, P. (2026). *RangeShift AI* (Version 0.7.0) [Computer software]. GitHub. https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.7.0
+
+BibTeX:
+
+```bibtex
+@software{owusu_ansah_rangeshift_ai_2026,
+  author  = {Owusu-Ansah, Pauline},
+  title   = {RangeShift AI},
+  year    = {2026},
+  version = {0.7.0},
+  url     = {https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.7.0}
+}
+```
+
+A machine-readable [`CITATION.cff`](CITATION.cff) is included so GitHub can generate citation formats through **Cite this repository**. A DOI has not yet been assigned; until an archival DOI is created, use the version-specific GitHub release URL above.
+
 ## Author
 
 **Pauline Owusu-Ansah**  
