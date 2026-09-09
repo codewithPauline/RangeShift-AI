@@ -16,7 +16,7 @@ from .range_shift import compare_suitability_rasters
 from .raster import parse_layer_specs, predict_suitability_raster
 from .spatial import compare_random_and_spatial
 from .spatial_cv import spatial_cross_validate
-from .visualization import plot_suitability_map
+from .visualization import plot_range_shift_map, plot_suitability_map
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -114,6 +114,20 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("range_shift_summary.json"),
     )
+
+    plot_shift = subparsers.add_parser(
+        "plot-range-shift",
+        help="Render the four-class range-shift transition GeoTIFF.",
+    )
+    plot_shift.add_argument("input_raster", type=Path)
+    plot_shift.add_argument(
+        "--output",
+        type=Path,
+        default=Path("range_shift_map.png"),
+    )
+    plot_shift.add_argument("--title", default="Projected habitat range shift")
+    plot_shift.add_argument("--boundary", type=Path, default=None)
+    plot_shift.add_argument("--dpi", type=int, default=300)
 
     spatial = subparsers.add_parser(
         "compare-spatial",
@@ -241,6 +255,17 @@ def main() -> None:
         args.summary_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
         print(json.dumps(payload, indent=2, sort_keys=True))
         print(f"Saved range-shift summary: {args.summary_output}")
+        return
+
+    if args.command == "plot-range-shift":
+        output_path = plot_range_shift_map(
+            args.input_raster,
+            args.output,
+            title=args.title,
+            boundary_path=args.boundary,
+            dpi=args.dpi,
+        )
+        print(f"Saved range-shift map: {output_path}")
         return
 
     if args.command == "compare-spatial":
