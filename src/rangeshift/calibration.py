@@ -221,8 +221,14 @@ def save_calibrated_model_bundle(result: CalibrationResult, path: str | Path) ->
     path.parent.mkdir(parents=True, exist_ok=True)
 
     metrics = {
-        **{f"probability_{key}": value for key, value in result.test_probability_metrics.items()},
-        **{f"classification_{key}": value for key, value in result.test_classification_metrics.items()},
+        **{
+            f"probability_{key}": value
+            for key, value in result.test_probability_metrics.items()
+        },
+        **{
+            f"classification_{key}": value
+            for key, value in result.test_classification_metrics.items()
+        },
     }
     bundle = {
         "model": result.model,
