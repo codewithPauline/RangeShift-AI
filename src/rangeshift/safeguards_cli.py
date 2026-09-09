@@ -33,7 +33,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     background.add_argument("presence_csv", type=Path)
     background.add_argument("--n", type=int, required=True)
-    background.add_argument("--method", choices=sorted(SUPPORTED_BACKGROUND_METHODS), default="random")
+    background.add_argument(
+        "--method",
+        choices=sorted(SUPPORTED_BACKGROUND_METHODS),
+        default="random",
+    )
     background.add_argument("--latitude", default="latitude")
     background.add_argument("--longitude", default="longitude")
     background.add_argument("--min-distance-km", type=float, default=0.0)
@@ -65,10 +69,22 @@ def build_parser() -> argparse.ArgumentParser:
     collinearity.add_argument("--features", nargs="+", required=True)
     collinearity.add_argument("--correlation-threshold", type=float, default=0.7)
     collinearity.add_argument("--vif-threshold", type=float, default=5.0)
-    collinearity.add_argument("--correlation-output", type=Path, default=Path("correlation_matrix.csv"))
-    collinearity.add_argument("--pairs-output", type=Path, default=Path("high_correlation_pairs.csv"))
+    collinearity.add_argument(
+        "--correlation-output",
+        type=Path,
+        default=Path("correlation_matrix.csv"),
+    )
+    collinearity.add_argument(
+        "--pairs-output",
+        type=Path,
+        default=Path("high_correlation_pairs.csv"),
+    )
     collinearity.add_argument("--vif-output", type=Path, default=Path("vif.csv"))
-    collinearity.add_argument("--summary-output", type=Path, default=Path("collinearity_summary.json"))
+    collinearity.add_argument(
+        "--summary-output",
+        type=Path,
+        default=Path("collinearity_summary.json"),
+    )
 
     novelty = subparsers.add_parser(
         "novel-climate",
@@ -79,8 +95,16 @@ def build_parser() -> argparse.ArgumentParser:
     novelty.add_argument("--features", nargs="+", required=True)
     novelty.add_argument("--distance-quantile", type=float, default=0.99)
     novelty.add_argument("--row-output", type=Path, default=Path("novel_climate_rows.csv"))
-    novelty.add_argument("--feature-output", type=Path, default=Path("novel_climate_features.csv"))
-    novelty.add_argument("--summary-output", type=Path, default=Path("novel_climate_summary.json"))
+    novelty.add_argument(
+        "--feature-output",
+        type=Path,
+        default=Path("novel_climate_features.csv"),
+    )
+    novelty.add_argument(
+        "--summary-output",
+        type=Path,
+        default=Path("novel_climate_summary.json"),
+    )
 
     dispersal = subparsers.add_parser(
         "dispersal",
