@@ -82,3 +82,25 @@ jobs:
 
       - name: Run explainability tests
         run: pytest -q tests/test_explainability.py
+
+  product:
+    name: Interactive app extras
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install app, geospatial, and development dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,geo,app]"
+
+      - name: Smoke-test the Streamlit explorer
+        run: pytest -q tests/test_app.py
