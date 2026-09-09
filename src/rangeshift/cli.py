@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from .calibration import save_calibrated_model_bundle, train_calibrated_habitat_model
 from .data import load_occurrence_table
 from .geospatial import assign_projected_blocks
 from .model import save_model_bundle, train_habitat_model
@@ -16,6 +17,7 @@ from .range_shift import compare_suitability_rasters
 from .raster import parse_layer_specs, predict_suitability_raster
 from .spatial import compare_random_and_spatial
 from .spatial_cv import spatial_cross_validate
+from .threshold import select_threshold
 from .visualization import plot_range_shift_map, plot_suitability_map
 
 
@@ -39,6 +41,64 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--test-size", type=float, default=0.25)
     train.add_argument("--seed", type=int, default=42)
     train.add_argument("--trees", type=int, default=300)
+
+    calibrate = subparsers.add_parser(
+        "calibrate",
+        help="Train a calibrated model and select a threshold on validation data.",
+    )
+    calibrate.add_argument("input_csv", type=Path)
+    calibrate.add_argument("--target", default="presence")
+    calibrate.add_argument("--features", nargs="+", required=True)
+    calibrate.add_argument("--validation-size", type=float, default=0.20)
+    calibrate.add_argument("--test-size", type=float, default=0.20)
+    calibrate.add_argument("--seed", type=int, default=42)
+    calibrate.add_argument("--trees", type=int, default=300)
+    calibrate.add_argument("--calibration-method", choices=("sigmoid", "isotonic"), default="sigmoid")
+    calibrate.add_argument("--calibration-cv", type=int, default=5)
+    calibrate.add_argument(
+        "--threshold-method",
+        choices=("tss", "youden_j", "f1", "balanced_accuracy"),
+        default="tss",
+    )
+    calibrate.add_argument("--calibration-bins", type=int, default=10)
+    calibrate.add_argument(
+        "--output",
+        type=Path,
+        default=Path("rangeshift_calibrated.joblib"),
+    )
+    calibrate.add_argument(
+        "--threshold-output",
+        type=Path,
+        default=Path("threshold_diagnostics.csv"),
+    )
+    calibrate.add_argument(
+        "--calibration-output",
+        type=Path,
+        default=Path("calibration_diagnostics.csv"),
+    )
+    calibrate.add_argument(
+        "--summary-output",
+        type=Path,
+        default=Path("calibration_summary.json"),
+    )
+
+    threshold = subparsers.add_parser(
+        "select-threshold",
+        help="Select a suitability threshold from validation labels and probabilities.",
+    )
+    threshold.add_argument("input_csv", type=Path)
+    threshold.add_argument("--target", default="presence")
+    threshold.add_argument("--probability", default="suitability")
+    threshold.add_argument(
+        "--method",
+        choices=("tss", "youden_j", "f1", "balanced_accuracy"),
+        default="tss",
+    )
+    threshold.add_argument(
+        "--output",
+        type=Path,
+        default=Path("threshold_diagnostics.csv"),
+    )
 
     predict = subparsers.add_parser(
         "predict",
@@ -198,6 +258,70 @@ def main() -> None:
         print("\nFeature importance")
         print(result.feature_importance.to_string(index=False))
         print(f"\nSaved model: {saved_path}")
+        return
+
+    if args.command == "calibrate":
+        frame = load_occurrence_table(args.input_csv)
+        result = train_calibrated_habitat_model(
+            frame,
+            feature_columns=args.features,
+            target_column=args.target,
+            validation_size=args.validation_size,
+            test_size=args.test_size,
+            random_state=args.seed,
+            n_estimators=args.trees,
+            calibration_method=args.calibration_method,
+            calibration_cv=args.calibration_cv,
+            threshold_method=args.threshold_method,
+            calibration_bins=args.calibration_bins,
+        )
+        saved_path = save_calibrated_model_bundle(result, args.output)
+        args.threshold_output.parent.mkdir(parents=True, exist_ok=True)
+        args.calibration_output.parent.mkdir(parents=True, exist_ok=True)
+        result.threshold_table.to_csv(args.threshold_output, index=False)
+        result.calibration_table.to_csv(args.calibration_output, index=False)
+
+        payload = {
+            "selected_threshold": result.selected_threshold,
+            "threshold_method": result.threshold_method,
+            "calibration_method": result.calibration_method,
+            "split_sizes": result.split_sizes,
+            "validation_threshold_metrics": result.validation_threshold_metrics,
+            "test_probability_metrics": result.test_probability_metrics,
+            "uncalibrated_test_probability_metrics": (
+                result.uncalibrated_test_probability_metrics
+            ),
+            "test_classification_metrics": result.test_classification_metrics,
+            "model": str(saved_path),
+        }
+        args.summary_output.parent.mkdir(parents=True, exist_ok=True)
+        args.summary_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        print(f"Saved threshold diagnostics: {args.threshold_output}")
+        print(f"Saved calibration diagnostics: {args.calibration_output}")
+        print(f"Saved calibration summary: {args.summary_output}")
+        return
+
+    if args.command == "select-threshold":
+        frame = pd.read_csv(args.input_csv)
+        missing = [column for column in (args.target, args.probability) if column not in frame]
+        if missing:
+            raise ValueError(f"Input CSV is missing required columns: {', '.join(missing)}")
+        result = select_threshold(
+            frame[args.target],
+            frame[args.probability],
+            method=args.method,
+        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        result.table.to_csv(args.output, index=False)
+        payload = {
+            "selected_threshold": result.threshold,
+            "method": result.method,
+            "score": result.score,
+            "metrics": result.metrics,
+            "diagnostics": str(args.output),
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
         return
 
     if args.command == "predict":
