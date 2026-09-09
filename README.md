@@ -1,11 +1,14 @@
 # RangeShift AI
 
-> Geospatial machine-learning tools for habitat suitability modeling and transparent current-to-future range-shift analysis.
+> **Released geospatial machine-learning software for habitat suitability modeling and transparent current-to-future range-shift analysis.**
 
+[![Latest Release](https://img.shields.io/github/v/release/codewithPauline/RangeShift-AI?label=Latest%20Release&sort=semver)](https://github.com/codewithPauline/RangeShift-AI/releases/latest)
 [![CI](https://github.com/codewithPauline/RangeShift-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/codewithPauline/RangeShift-AI/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/version-0.7.0-informational.svg)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**Released · CI tested · Installable · MIT licensed**  
+**Latest release:** [`v0.7.0`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.7.0) — download the tested Python wheel or source distribution from the release page.
 
 ## Why RangeShift AI?
 
