@@ -20,7 +20,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-GBIF_BASE = "https://api.gbif.org/v1"
+GBIF_OCCURRENCE_BASE = "https://api.gbif.org/v1"
+GBIF_SPECIES_MATCH_URL = "https://api.gbif.org/v2/species/match"
 WORLDCLIM_BIO_URL = (
     "https://geodata.ucdavis.edu/climate/worldclim/2_1/base/wc2.1_10m_bio.zip"
 )
@@ -50,17 +51,18 @@ def _download(url: str, destination: Path) -> Path:
     return destination
 
 
-def resolve_gbif_taxon(species: str) -> tuple[int, str]:
-    """Resolve a scientific name against the GBIF backbone."""
-    result = _json_get(f"{GBIF_BASE}/species/match", {"name": species})
-    usage_key = result.get("usageKey")
+def resolve_gbif_taxon(species: str) -> tuple[str, str]:
+    """Resolve a scientific name using GBIF's current v2 species matcher."""
+    result = _json_get(GBIF_SPECIES_MATCH_URL, {"scientificName": species})
+    usage = result.get("usage") or {}
+    usage_key = usage.get("key")
     if usage_key is None:
         raise RuntimeError(f"GBIF could not resolve the species name: {species}")
-    return int(usage_key), str(result.get("scientificName", species))
+    return str(usage_key), str(usage.get("name", species))
 
 
 def fetch_occurrences(
-    taxon_key: int,
+    taxon_key: str,
     *,
     country: str,
     max_records: int,
@@ -74,7 +76,7 @@ def fetch_occurrences(
     while len(records) < max_records:
         limit = min(300, max_records - len(records))
         payload = _json_get(
-            f"{GBIF_BASE}/occurrence/search",
+            f"{GBIF_OCCURRENCE_BASE}/occurrence/search",
             {
                 "taxon_key": taxon_key,
                 "country": country,
@@ -154,16 +156,20 @@ def extract_presence_climate(
     except ImportError as exc:
         raise ImportError("Install RangeShift with the 'geo' extra to run this example.") from exc
 
-    coordinates = list(zip(occurrences["longitude"], occurrences["latitude"], strict=True))
+    coordinates = list(
+        zip(occurrences["longitude"], occurrences["latitude"], strict=True)
+    )
     output = occurrences.copy()
     valid = np.ones(len(output), dtype=bool)
     for feature, path in raster_paths.items():
         with rasterio.open(path) as dataset:
-            values = np.array([sample[0] for sample in dataset.sample(coordinates)], dtype=float)
-            nodata = dataset.nodata
+            values = np.array(
+                [sample[0] for sample in dataset.sample(coordinates)],
+                dtype=float,
+            )
             feature_valid = np.isfinite(values)
-            if nodata is not None:
-                feature_valid &= values != nodata
+            if dataset.nodata is not None:
+                feature_valid &= values != dataset.nodata
             valid &= feature_valid
             output[feature] = values
     output = output.loc[valid].copy()
@@ -190,9 +196,14 @@ def sample_background(
 
     if count < 1:
         raise ValueError("Background count must be positive.")
+    if buffer_degrees < 0:
+        raise ValueError("buffer_degrees cannot be negative.")
+
     rng = random.Random(seed)
-    first_path = next(iter(raster_paths.values()))
-    datasets = {feature: rasterio.open(path) for feature, path in raster_paths.items()}
+    datasets = {
+        feature: rasterio.open(path)
+        for feature, path in raster_paths.items()
+    }
     try:
         reference = datasets[next(iter(datasets))]
         left = max(-180.0, float(presences["longitude"].min()) - buffer_degrees)
@@ -266,7 +277,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--background", type=int, default=500)
     parser.add_argument("--buffer-degrees", type=float, default=2.0)
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--output-dir", type=Path, default=Path("real_ecology_output"))
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("real_ecology_output"),
+    )
     return parser
 
 
@@ -319,12 +334,15 @@ def main() -> None:
         "worldclim_version": "2.1",
         "worldclim_resolution": "10 minutes",
         "worldclim_predictors": list(SELECTED_BIOCLIM),
-        "gbif_api": "https://api.gbif.org/v1/occurrence/search",
+        "gbif_match_api": GBIF_SPECIES_MATCH_URL,
+        "gbif_occurrence_api": (
+            f"{GBIF_OCCURRENCE_BASE}/occurrence/search"
+        ),
         "worldclim_url": WORLDCLIM_BIO_URL,
         "note": (
-            "This is a reproducible demonstration dataset, not a publication-ready occurrence "
-            "download. For research publication, create a citable GBIF download DOI and document "
-            "species-specific sampling and background design choices."
+            "This is a reproducible demonstration dataset, not a publication-ready "
+            "occurrence download. For research publication, create a citable GBIF "
+            "download DOI and document species-specific sampling and background choices."
         ),
     }
     metadata_path = args.output_dir / "provenance.json"
