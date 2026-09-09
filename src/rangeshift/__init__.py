@@ -99,4 +99,4 @@ __all__ = [
     "train_habitat_model",
     "tune_and_compare_models",
 ]
-__version__ = "0.6.0"
+__version__ = "0.7.0"
