@@ -2,6 +2,7 @@
 
 from .geospatial import ProjectedBlockResult, assign_projected_blocks, estimate_local_utm_epsg
 from .model import TrainingResult, train_habitat_model
+from .range_shift import RangeShiftResult, compare_suitability_rasters
 from .raster import (
     RasterPredictionResult,
     RasterStack,
@@ -20,6 +21,7 @@ from .visualization import plot_suitability_map
 
 __all__ = [
     "ProjectedBlockResult",
+    "RangeShiftResult",
     "RasterPredictionResult",
     "RasterStack",
     "SpatialCVResult",
@@ -29,6 +31,7 @@ __all__ = [
     "assign_projected_blocks",
     "assign_spatial_blocks",
     "compare_random_and_spatial",
+    "compare_suitability_rasters",
     "cross_validate_spatial_blocks",
     "estimate_local_utm_epsg",
     "evaluate_spatial_holdout",
@@ -38,4 +41,4 @@ __all__ = [
     "spatial_cross_validate",
     "train_habitat_model",
 ]
-__version__ = "0.3.0"
+__version__ = "0.4.0"
