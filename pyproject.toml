@@ -49,6 +49,9 @@ geo = [
 explain = [
   "shap>=0.48,<0.50"
 ]
+app = [
+  "streamlit>=1.40"
+]
 dev = [
   "pytest>=8.0",
   "ruff>=0.6"
@@ -56,6 +59,8 @@ dev = [
 
 [project.scripts]
 rangeshift = "rangeshift.cli:main"
+rangeshift-eco = "rangeshift.safeguards_cli:main"
+rangeshift-run = "rangeshift.config_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
