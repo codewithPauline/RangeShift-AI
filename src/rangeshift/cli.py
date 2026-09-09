@@ -53,7 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
     calibrate.add_argument("--test-size", type=float, default=0.20)
     calibrate.add_argument("--seed", type=int, default=42)
     calibrate.add_argument("--trees", type=int, default=300)
-    calibrate.add_argument("--calibration-method", choices=("sigmoid", "isotonic"), default="sigmoid")
+    calibrate.add_argument(
+        "--calibration-method",
+        choices=("sigmoid", "isotonic"),
+        default="sigmoid",
+    )
     calibrate.add_argument("--calibration-cv", type=int, default=5)
     calibrate.add_argument(
         "--threshold-method",
