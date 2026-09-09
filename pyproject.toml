@@ -66,6 +66,7 @@ dev = [
 rangeshift = "rangeshift.cli:main"
 rangeshift-eco = "rangeshift.safeguards_cli:main"
 rangeshift-run = "rangeshift.config_cli:main"
+rangeshift-app = "rangeshift.app_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
