@@ -12,7 +12,6 @@ from pathlib import Path
 
 import numpy as np
 
-
 STABLE_UNSUITABLE = 0
 LOST_SUITABLE = 1
 GAINED_SUITABLE = 2
