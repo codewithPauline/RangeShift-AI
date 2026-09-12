@@ -271,7 +271,7 @@ def sample_background(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--species", default="Ambystoma maculatum")
+    parser.add_argument("--species", default="Plethodon cinereus")
     parser.add_argument("--country", default="US")
     parser.add_argument("--max-records", type=int, default=500)
     parser.add_argument("--background", type=int, default=500)
