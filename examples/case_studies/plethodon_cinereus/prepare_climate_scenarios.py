@@ -46,12 +46,17 @@ def _download(url: str, destination: Path) -> Path:
     return destination
 
 
-def _study_bounds(training_csv: Path, buffer_degrees: float) -> tuple[float, float, float, float]:
+def _study_bounds(
+    training_csv: Path,
+    buffer_degrees: float,
+) -> tuple[float, float, float, float]:
     frame = pd.read_csv(training_csv)
     required = {"presence", "latitude", "longitude"}
     missing = sorted(required.difference(frame.columns))
     if missing:
-        raise ValueError(f"Training table is missing required columns: {', '.join(missing)}")
+        raise ValueError(
+            f"Training table is missing required columns: {', '.join(missing)}"
+        )
     presences = frame.loc[frame["presence"] == 1]
     if presences.empty:
         raise ValueError("Training table contains no presence rows.")
@@ -88,7 +93,10 @@ def prepare_current_layers(
     climate_dir: Path,
     bounds: tuple[float, float, float, float],
 ) -> dict[str, Path]:
-    archive = _download(CURRENT_WORLDCLIM_URL, cache_dir / "wc2.1_10m_bio.zip")
+    archive = _download(
+        CURRENT_WORLDCLIM_URL,
+        cache_dir / "wc2.1_10m_bio.zip",
+    )
     sources = _extract_current_sources(archive, cache_dir)
     current_dir = climate_dir / "current"
     reference = crop_raster_band_to_bounds(
@@ -122,7 +130,10 @@ def prepare_future_scenarios(
         for ssp in ssps:
             scenario = f"{gcm}_{ssp}_{period}"
             url = worldclim_cmip6_bioc_url(gcm, ssp, period)
-            source = _download(url, cache_dir / "future" / Path(url).name)
+            source = _download(
+                url,
+                cache_dir / "future" / Path(url).name,
+            )
             layers = extract_bioclim_bands_to_reference(
                 source,
                 reference_path,
@@ -198,7 +209,10 @@ def main() -> None:
     scenario_layers_path = args.output_dir / "scenario_layers.json"
     scenario_layers_path.write_text(
         json.dumps(
-            {name: _stringify_layers(layers) for name, layers in scenarios.items()},
+            {
+                name: _stringify_layers(layers)
+                for name, layers in scenarios.items()
+            },
             indent=2,
             sort_keys=True,
         )
@@ -226,7 +240,9 @@ def main() -> None:
         "dispersal_max_distance_km": None,
     }
     base_config_path = args.output_dir / "base_run_config.json"
-    base_config_path.write_text(json.dumps(base_config, indent=2, sort_keys=True) + "\n")
+    base_config_path.write_text(
+        json.dumps(base_config, indent=2, sort_keys=True) + "\n"
+    )
 
     provenance = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -235,7 +251,9 @@ def main() -> None:
         "worldclim_version": "2.1",
         "resolution": "10 minutes",
         "current_source_url": CURRENT_WORLDCLIM_URL,
-        "future_archive": "WorldClim CMIP6 downscaled and bias-corrected projections",
+        "future_archive": (
+            "WorldClim CMIP6 downscaled and bias-corrected projections"
+        ),
         "features": BIOCLIM_FEATURES,
         "study_bounds": {
             "left": bounds[0],
@@ -252,11 +270,14 @@ def main() -> None:
         ),
         "interpretation": (
             "The default six projections are a transparent software demonstration, "
-            "not a claim that three GCMs or two SSPs fully characterize climate uncertainty."
+            "not a claim that three GCMs or two SSPs fully characterize climate "
+            "uncertainty."
         ),
     }
     provenance_path = args.output_dir / "climate_provenance.json"
-    provenance_path.write_text(json.dumps(provenance, indent=2, sort_keys=True) + "\n")
+    provenance_path.write_text(
+        json.dumps(provenance, indent=2, sort_keys=True) + "\n"
+    )
 
     print(f"Prepared current grid: {current_layers['bio1']}")
     print(f"Prepared future scenarios: {len(scenarios)}")
