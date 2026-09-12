@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Released · CI tested · Installable · MIT licensed**  
-**Latest release:** [`v0.7.0`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.7.0) — download the tested Python wheel or source distribution from the release page.
+**Latest release:** [`v0.8.0`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0) — download the tested Python wheel or source distribution from the release page.
 
 ## Why RangeShift AI?
 
@@ -18,7 +18,7 @@ The project is deliberately designed so ecological assumptions remain visible. R
 
 ## Project status
 
-**v0.7.0 — Phases 1–6 of the public roadmap are complete and covered by automated validation.**
+**v0.8.0 — Phases 1–6 of the public roadmap are complete and covered by automated validation.**
 
 RangeShift now supports an end-to-end workflow from occurrence/environmental data to ecologically qualified, reproducible range-shift outputs:
 

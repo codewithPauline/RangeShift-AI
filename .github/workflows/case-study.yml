@@ -1,15 +1,6 @@
 name: Public case study
 
 on:
-  push:
-    branches:
-      - feature/case-study-run
-    paths:
-      - ".github/workflows/case-study.yml"
-      - "examples/case_studies/plethodon_cinereus/**"
-      - "examples/real_ecology/**"
-      - "src/rangeshift/**"
-      - "pyproject.toml"
   workflow_dispatch:
 
 jobs:
@@ -74,21 +65,6 @@ jobs:
           cp plethodon_cinereus_scenario_runs/uncertainty/future_suitability_mean.tif case_study_artifacts/results/
           cp plethodon_cinereus_scenario_runs/uncertainty/future_suitability_sd.tif case_study_artifacts/results/
           cp plethodon_cinereus_scenario_runs/uncertainty/future_suitable_fraction.tif case_study_artifacts/results/
-
-      - name: Publish verified compact outputs and README figure
-        if: github.ref == 'refs/heads/feature/case-study-run'
-        run: |
-          python examples/case_studies/plethodon_cinereus/publish_case_study_outputs.py \
-            --artifact-dir case_study_artifacts \
-            --repository-root .
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md docs/assets/plethodon_cinereus_case_study.png \
-            examples/case_studies/plethodon_cinereus/results
-          if ! git diff --cached --quiet; then
-            git commit -m "Publish verified Plethodon case-study outputs [skip ci]"
-            git push origin HEAD:feature/case-study-run
-          fi
 
       - name: Upload real case-study artifact
         uses: actions/upload-artifact@v4
