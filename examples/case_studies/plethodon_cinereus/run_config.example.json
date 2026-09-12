@@ -1,0 +1,27 @@
+{
+  "training_csv": "real_ecology_output/gbif_worldclim_training.csv",
+  "features": ["bio1", "bio12", "bio15"],
+  "current_layers": {
+    "bio1": "climate/current/bio1.tif",
+    "bio12": "climate/current/bio12.tif",
+    "bio15": "climate/current/bio15.tif"
+  },
+  "future_layers": {
+    "bio1": "climate/future/bio1.tif",
+    "bio12": "climate/future/bio12.tif",
+    "bio15": "climate/future/bio15.tif"
+  },
+  "output_dir": "plethodon_cinereus_rangeshift",
+  "target": "presence",
+  "latitude_column": "latitude",
+  "longitude_column": "longitude",
+  "seed": 42,
+  "calibration_method": "sigmoid",
+  "threshold_method": "tss",
+  "calibration_cv": 5,
+  "spatial_validation": true,
+  "spatial_block_size_degrees": 1.0,
+  "spatial_test_size": 0.25,
+  "raster_window_size": 512,
+  "dispersal_max_distance_km": null
+}
