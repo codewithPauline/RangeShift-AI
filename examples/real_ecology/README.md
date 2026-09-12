@@ -1,6 +1,8 @@
 # Real ecological example: GBIF + WorldClim
 
-This example prepares a real species-distribution training table from public biodiversity and climate data. It defaults to the spotted salamander, *Ambystoma maculatum*, in the United States, but the species and country can be changed from the command line.
+This example prepares a real species-distribution training table from public biodiversity and climate data. It now defaults to the eastern red-backed salamander, *Plethodon cinereus*, in the United States, while keeping the species and country configurable from the command line.
+
+The default was chosen to support the RangeShift v0.8 flagship case study while keeping the public example separate from the focal manuscript taxa *Ambystoma barbouri* and *A. texanum*.
 
 ## Data sources
 
@@ -21,7 +23,7 @@ Then run:
 
 ```bash
 python examples/real_ecology/prepare_gbif_worldclim.py \
-  --species "Ambystoma maculatum" \
+  --species "Plethodon cinereus" \
   --country US \
   --max-records 500 \
   --background 500 \
@@ -43,8 +45,10 @@ The generated training table can then be passed directly to RangeShift:
 rangeshift calibrate real_ecology_output/gbif_worldclim_training.csv \
   --target presence \
   --features bio1 bio12 bio15 \
-  --output spotted_salamander_model.joblib
+  --output red_backed_salamander_model.joblib
 ```
+
+For the full current-to-future demonstration, see [`../case_studies/plethodon_cinereus/`](../case_studies/plethodon_cinereus/).
 
 ## Scientific boundaries
 
