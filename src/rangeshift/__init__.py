@@ -32,6 +32,12 @@ from .raster import (
     predict_suitability_raster,
     predict_suitability_raster_windowed,
 )
+from .scenarios import (
+    ScenarioBatchResult,
+    ScenarioUncertaintyResult,
+    run_scenario_batch,
+    summarize_suitability_scenarios,
+)
 from .spatial import (
     SpatialComparisonResult,
     SpatialEvaluationResult,
@@ -59,6 +65,8 @@ __all__ = [
     "RasterStack",
     "RunConfig",
     "SamplingBiasResult",
+    "ScenarioBatchResult",
+    "ScenarioUncertaintyResult",
     "SpatialCVResult",
     "SpatialComparisonResult",
     "SpatialEvaluationResult",
@@ -89,11 +97,13 @@ __all__ = [
     "predict_suitability_raster",
     "predict_suitability_raster_windowed",
     "run_configured_analysis",
+    "run_scenario_batch",
     "save_calibrated_model_bundle",
     "save_selected_model_bundle",
     "select_threshold",
     "shap_importance_table",
     "spatial_cross_validate",
+    "summarize_suitability_scenarios",
     "thin_spatial_points",
     "train_calibrated_habitat_model",
     "train_habitat_model",
