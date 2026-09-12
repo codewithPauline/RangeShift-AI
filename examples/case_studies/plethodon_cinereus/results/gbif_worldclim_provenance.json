@@ -1,0 +1,20 @@
+{
+  "background_records": 400,
+  "country": "US",
+  "gbif_match_api": "https://api.gbif.org/v2/species/match",
+  "gbif_matched_name": "Plethodon cinereus (Green, 1818)",
+  "gbif_occurrence_api": "https://api.gbif.org/v1/occurrence/search",
+  "gbif_taxon_key": "2431491",
+  "note": "This is a reproducible demonstration dataset, not a publication-ready occurrence download. For research publication, create a citable GBIF download DOI and document species-specific sampling and background choices.",
+  "presence_records_after_filtering": 382,
+  "requested_species": "Plethodon cinereus",
+  "retrieved_at_utc": "2026-09-12T16:10:00.649263+00:00",
+  "worldclim_predictors": [
+    "bio1",
+    "bio12",
+    "bio15"
+  ],
+  "worldclim_resolution": "10 minutes",
+  "worldclim_url": "https://geodata.ucdavis.edu/climate/worldclim/2_1/base/wc2.1_10m_bio.zip",
+  "worldclim_version": "2.1"
+}

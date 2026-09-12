@@ -1,0 +1,61 @@
+{
+  "alignment": "All current and future predictor rasters are resampled to the cropped current bio1 reference grid using bilinear interpolation for continuous bioclimatic variables.",
+  "created_at_utc": "2026-09-12T16:10:17.470877+00:00",
+  "current_source_url": "https://geodata.ucdavis.edu/climate/worldclim/2_1/base/wc2.1_10m_bio.zip",
+  "features": {
+    "bio1": 1,
+    "bio12": 12,
+    "bio15": 15
+  },
+  "future_archive": "WorldClim CMIP6 downscaled and bias-corrected projections",
+  "interpretation": "The default six projections are a transparent software demonstration, not a claim that three GCMs or two SSPs fully characterize climate uncertainty.",
+  "resolution": "10 minutes",
+  "scenario_count": 6,
+  "scenarios": {
+    "ACCESS-CM2_ssp245_2061-2080": {
+      "gcm": "ACCESS-CM2",
+      "period": "2061-2080",
+      "source_url": "https://geodata.ucdavis.edu/cmip6/10m/ACCESS-CM2/ssp245/wc2.1_10m_bioc_ACCESS-CM2_ssp245_2061-2080.tif",
+      "ssp": "ssp245"
+    },
+    "ACCESS-CM2_ssp585_2061-2080": {
+      "gcm": "ACCESS-CM2",
+      "period": "2061-2080",
+      "source_url": "https://geodata.ucdavis.edu/cmip6/10m/ACCESS-CM2/ssp585/wc2.1_10m_bioc_ACCESS-CM2_ssp585_2061-2080.tif",
+      "ssp": "ssp585"
+    },
+    "MIROC6_ssp245_2061-2080": {
+      "gcm": "MIROC6",
+      "period": "2061-2080",
+      "source_url": "https://geodata.ucdavis.edu/cmip6/10m/MIROC6/ssp245/wc2.1_10m_bioc_MIROC6_ssp245_2061-2080.tif",
+      "ssp": "ssp245"
+    },
+    "MIROC6_ssp585_2061-2080": {
+      "gcm": "MIROC6",
+      "period": "2061-2080",
+      "source_url": "https://geodata.ucdavis.edu/cmip6/10m/MIROC6/ssp585/wc2.1_10m_bioc_MIROC6_ssp585_2061-2080.tif",
+      "ssp": "ssp585"
+    },
+    "MRI-ESM2-0_ssp245_2061-2080": {
+      "gcm": "MRI-ESM2-0",
+      "period": "2061-2080",
+      "source_url": "https://geodata.ucdavis.edu/cmip6/10m/MRI-ESM2-0/ssp245/wc2.1_10m_bioc_MRI-ESM2-0_ssp245_2061-2080.tif",
+      "ssp": "ssp245"
+    },
+    "MRI-ESM2-0_ssp585_2061-2080": {
+      "gcm": "MRI-ESM2-0",
+      "period": "2061-2080",
+      "source_url": "https://geodata.ucdavis.edu/cmip6/10m/MRI-ESM2-0/ssp585/wc2.1_10m_bioc_MRI-ESM2-0_ssp585_2061-2080.tif",
+      "ssp": "ssp585"
+    }
+  },
+  "species": "Plethodon cinereus",
+  "study_bounds": {
+    "bottom": 33.704289,
+    "left": -89.748262,
+    "right": -66.270145,
+    "top": 46.485198
+  },
+  "training_csv": "real_ecology_output/gbif_worldclim_training.csv",
+  "worldclim_version": "2.1"
+}
