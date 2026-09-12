@@ -1,0 +1,64 @@
+name: Release prep
+
+on:
+  push:
+    branches:
+      - "release/**"
+    paths:
+      - "pyproject.toml"
+      - ".github/workflows/release-prep.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync-release-metadata:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out release branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Synchronize README release status
+        shell: bash
+        run: |
+          python - <<'PY'
+          import re
+          import tomllib
+          from pathlib import Path
+
+          with open("pyproject.toml", "rb") as handle:
+              version = tomllib.load(handle)["project"]["version"]
+
+          readme_path = Path("README.md")
+          text = readme_path.read_text()
+          text = re.sub(
+              r"\*\*Latest release:\*\* \[`v[^`]+`\]\(https://github\.com/codewithPauline/RangeShift-AI/releases/tag/v[^)]+\)",
+              f"**Latest release:** [`v{version}`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v{version})",
+              text,
+              count=1,
+          )
+          text = re.sub(
+              r"\*\*v[^ ]+ — Phases 1–6 of the public roadmap are complete and covered by automated validation\.\*\*",
+              f"**v{version} — Phases 1–6 of the public roadmap are complete and covered by automated validation.**",
+              text,
+              count=1,
+          )
+          readme_path.write_text(text)
+          PY
+
+      - name: Commit synchronized README if needed
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync README release metadata"
+            git push
+          fi
