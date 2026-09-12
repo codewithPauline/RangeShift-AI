@@ -27,8 +27,8 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-#   Usually these files are written by a python script from a template
-#   so as to inject date/other infos into them.
+#   Usually these files are written by a script from a template
+#   so as to inject date/other infos
 *.manifest
 *.spec
 
@@ -112,12 +112,12 @@ __pypackages__/
 celerybeat-schedule
 celerybeat.pid
 
-# Redis
+# Redis stuff
 *.rdb
 *.aof
 *.pid
 
-# RabbitMQ
+# RabbitMQ stuff
 mnesia/
 rabbitmq/
 rabbitmq-data/
@@ -156,7 +156,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# pytype static type analyzer
+# pytype static analyzer
 .pytype/
 
 # Cython debug symbols
@@ -189,3 +189,5 @@ __marimo__/
 # RangeShift generated demo and downloaded ecological-data outputs
 rangeshift_demo_output/
 real_ecology_output/
+plethodon_cinereus_climate/
+plethodon_cinereus_scenario_runs/
