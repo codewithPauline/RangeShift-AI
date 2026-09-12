@@ -304,13 +304,14 @@ RangeShift is exercised end to end on a reproducible public-data demonstration u
 CMIP6 projections (ACCESS-CM2, MIROC6, and MRI-ESM2-0 × SSP245/SSP585; 2061–2080).
 The figure below is generated from the actual RangeShift outputs, not synthetic maps.
 
-![RangeShift AI Plethodon cinereus real case-study outputs](docs/assets/plethodon_cinereus_case_study.png)
+![Real case-study outputs](docs/assets/plethodon_cinereus_case_study.png)
 
 Across the six supplied climate projections, the validated threshold was **0.53**.
 Current suitable area was approximately **393,955 km²**; projected suitable
 area ranged from **256,576 to 415,408 km²**, corresponding to
 **-34.9% to +5.4%** change from current suitability. Estimated
-suitable-range centroid shifts ranged from **397 to 592 km**.
+suitable-range centroid shifts ranged from **397 to
+592 km**.
 
 These numbers describe this software demonstration under its stated occurrence sample,
 predictors, threshold, GCM/SSP set, and modeling assumptions. They are **not** presented as
@@ -318,6 +319,7 @@ a species conservation forecast. See
 [`examples/case_studies/plethodon_cinereus/`](examples/case_studies/plethodon_cinereus/)
 for the workflow and compact provenance/results.
 <!-- /PLETHODON_CASE_STUDY -->
+
 
 
 ## Expected tabular input
