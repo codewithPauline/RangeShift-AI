@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Mapping
 
 import numpy as np
 
@@ -32,7 +32,10 @@ def worldclim_cmip6_bioc_url(
     retrieval because it is compact enough for a reproducible public case study.
     """
     if resolution != "10m":
-        raise ValueError("Automated WorldClim CMIP6 retrieval currently supports resolution='10m'.")
+        raise ValueError(
+            "Automated WorldClim CMIP6 retrieval currently supports "
+            "resolution='10m'."
+        )
     if ssp not in WORLDCLIM_CMIP6_SSPS:
         raise ValueError(
             "ssp must be one of: " + ", ".join(sorted(WORLDCLIM_CMIP6_SSPS))
@@ -60,14 +63,18 @@ def crop_raster_band_to_bounds(
         import rasterio
         from rasterio.windows import from_bounds
     except ImportError as exc:
-        raise ImportError("Install RangeShift with the 'geo' extra for climate rasters.") from exc
+        raise ImportError(
+            "Install RangeShift with the 'geo' extra for climate rasters."
+        ) from exc
 
     source_path = Path(source_path)
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     left, bottom, right, top = bounds
     if not (left < right and bottom < top):
-        raise ValueError("bounds must be (left, bottom, right, top) with positive extent.")
+        raise ValueError(
+            "bounds must be (left, bottom, right, top) with positive extent."
+        )
 
     with rasterio.open(source_path) as source:
         if band < 1 or band > source.count:
@@ -107,7 +114,9 @@ def align_raster_band_to_reference(
         import rasterio
         from rasterio.warp import Resampling, reproject
     except ImportError as exc:
-        raise ImportError("Install RangeShift with the 'geo' extra for climate rasters.") from exc
+        raise ImportError(
+            "Install RangeShift with the 'geo' extra for climate rasters."
+        ) from exc
 
     source_path = Path(source_path)
     reference_path = Path(reference_path)
@@ -167,7 +176,9 @@ def extract_bioclim_bands_to_reference(
     outputs: dict[str, Path] = {}
     for feature, band in features.items():
         if not feature or int(band) < 1:
-            raise ValueError("features must map non-empty names to positive band numbers.")
+            raise ValueError(
+                "features must map non-empty names to positive band numbers."
+            )
         path = output_dir / f"{feature}.tif"
         outputs[feature] = align_raster_band_to_reference(
             source_path,
@@ -183,7 +194,9 @@ def validate_aligned_rasters(raster_paths: Mapping[str, str | Path]) -> None:
     try:
         import rasterio
     except ImportError as exc:
-        raise ImportError("Install RangeShift with the 'geo' extra for climate rasters.") from exc
+        raise ImportError(
+            "Install RangeShift with the 'geo' extra for climate rasters."
+        ) from exc
 
     if not raster_paths:
         raise ValueError("At least one raster is required for alignment validation.")
@@ -194,4 +207,6 @@ def validate_aligned_rasters(raster_paths: Mapping[str, str | Path]) -> None:
             if reference is None:
                 reference = signature
             elif signature != reference:
-                raise ValueError(f"Raster {label!r} is not aligned to the shared grid.")
+                raise ValueError(
+                    f"Raster {label!r} is not aligned to the shared grid."
+                )
