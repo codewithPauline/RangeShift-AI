@@ -85,15 +85,15 @@ def summarize_suitability_scenarios(
     and fraction of scenarios classified as suitable at the supplied threshold. Cells
     that are nodata in any scenario are nodata in all three summary rasters.
     """
-    try:
-        import rasterio
-    except ImportError as exc:
-        raise ImportError("Install RangeShift with the 'geo' extra for scenario rasters.") from exc
-
     if len(scenario_rasters) < 2:
         raise ValueError("At least two scenario rasters are required.")
     if not 0.0 <= threshold <= 1.0:
         raise ValueError("threshold must be between 0 and 1.")
+
+    try:
+        import rasterio
+    except ImportError as exc:
+        raise ImportError("Install RangeShift with the 'geo' extra for scenario rasters.") from exc
 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
