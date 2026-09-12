@@ -7,6 +7,16 @@ from .calibration import (
     save_calibrated_model_bundle,
     train_calibrated_habitat_model,
 )
+from .climate import (
+    WORLDCLIM_CMIP6_BASE,
+    WORLDCLIM_CMIP6_PERIODS,
+    WORLDCLIM_CMIP6_SSPS,
+    align_raster_band_to_reference,
+    crop_raster_band_to_bounds,
+    extract_bioclim_bands_to_reference,
+    validate_aligned_rasters,
+    worldclim_cmip6_bioc_url,
+)
 from .collinearity import CollinearityResult, diagnose_collinearity
 from .config import ConfigRunResult, RunConfig, load_run_config, run_configured_analysis
 from .dispersal import DispersalConstraintResult, apply_dispersal_constraint
@@ -73,11 +83,16 @@ __all__ = [
     "SpatialThinningResult",
     "ThresholdSelectionResult",
     "TrainingResult",
+    "WORLDCLIM_CMIP6_BASE",
+    "WORLDCLIM_CMIP6_PERIODS",
+    "WORLDCLIM_CMIP6_SSPS",
+    "align_raster_band_to_reference",
     "apply_dispersal_constraint",
     "assign_projected_blocks",
     "assign_spatial_blocks",
     "compare_random_and_spatial",
     "compare_suitability_rasters",
+    "crop_raster_band_to_bounds",
     "cross_validate_spatial_blocks",
     "diagnose_collinearity",
     "diagnose_extrapolation",
@@ -86,6 +101,7 @@ __all__ = [
     "estimate_local_utm_epsg",
     "evaluate_spatial_holdout",
     "evaluate_thresholds",
+    "extract_bioclim_bands_to_reference",
     "generate_background_points",
     "load_run_config",
     "parse_layer_specs",
@@ -108,5 +124,7 @@ __all__ = [
     "train_calibrated_habitat_model",
     "train_habitat_model",
     "tune_and_compare_models",
+    "validate_aligned_rasters",
+    "worldclim_cmip6_bioc_url",
 ]
 __version__ = "0.7.0"

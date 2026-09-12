@@ -50,6 +50,69 @@ Area change + overlap + centroid shift by scenario
 Run manifests + case-study figure
 ```
 
+## Runnable climate workflow
+
+The case study now includes an end-to-end WorldClim climate-preparation path. It uses WorldClim 2.1 current bioclimatic layers and the official downscaled CMIP6 archive at 10-minute resolution.
+
+The default future set contains **six projections** for **2061–2080**:
+
+- ACCESS-CM2 × SSP245
+- ACCESS-CM2 × SSP585
+- MIROC6 × SSP245
+- MIROC6 × SSP585
+- MRI-ESM2-0 × SSP245
+- MRI-ESM2-0 × SSP585
+
+This is intentionally a transparent software-demonstration ensemble, not a claim that three GCMs and two SSPs fully represent future climate uncertainty.
+
+### 1. Prepare public GBIF occurrences and current WorldClim training data
+
+```bash
+python examples/real_ecology/prepare_gbif_worldclim.py \
+  --species "Plethodon cinereus" \
+  --output-dir real_ecology_output
+```
+
+### 2. Download and align current + future climate rasters
+
+```bash
+python examples/case_studies/plethodon_cinereus/prepare_climate_scenarios.py
+```
+
+The script derives a study extent from the retained presence coordinates, adds a configurable geographic buffer, crops the current WorldClim grid, downloads the requested CMIP6 bioclimatic projections, and resamples every future predictor onto the exact same current reference grid.
+
+Generated files include:
+
+```text
+plethodon_cinereus_climate/
+├── base_run_config.json
+├── climate_provenance.json
+├── scenario_layers.json
+├── cache/
+└── climate/
+    ├── current/
+    │   ├── bio1.tif
+    │   ├── bio12.tif
+    │   └── bio15.tif
+    └── future/
+        ├── ACCESS-CM2_ssp245_2061-2080/
+        ├── ACCESS-CM2_ssp585_2061-2080/
+        ├── MIROC6_ssp245_2061-2080/
+        ├── MIROC6_ssp585_2061-2080/
+        ├── MRI-ESM2-0_ssp245_2061-2080/
+        └── MRI-ESM2-0_ssp585_2061-2080/
+```
+
+Large climate rasters are generated locally and are deliberately excluded from Git.
+
+### 3. Run all scenarios through RangeShift
+
+```bash
+python examples/case_studies/plethodon_cinereus/run_scenario_batch.py
+```
+
+This produces per-scenario suitability and range-shift outputs plus the cross-scenario uncertainty products described below.
+
 ## Multi-scenario uncertainty
 
 RangeShift v0.8 adds a batch scenario layer without changing the existing single-scenario workflow. A shared analysis configuration can be projected across multiple future climate-layer sets using `run_scenario_batch`.
