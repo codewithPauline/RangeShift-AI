@@ -1,0 +1,82 @@
+name: Public case study
+
+on:
+  push:
+    branches:
+      - feature/case-study-run
+    paths:
+      - ".github/workflows/case-study.yml"
+      - "examples/case_studies/plethodon_cinereus/**"
+      - "examples/real_ecology/**"
+      - "src/rangeshift/**"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+jobs:
+  plethodon-cinereus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install RangeShift with geospatial dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[geo]"
+
+      - name: Prepare public GBIF and current WorldClim training data
+        run: |
+          python examples/real_ecology/prepare_gbif_worldclim.py \
+            --species "Plethodon cinereus" \
+            --country US \
+            --max-records 400 \
+            --background 400 \
+            --seed 42 \
+            --output-dir real_ecology_output
+
+      - name: Prepare aligned current and CMIP6 future climate scenarios
+        run: |
+          python examples/case_studies/plethodon_cinereus/prepare_climate_scenarios.py \
+            --training-csv real_ecology_output/gbif_worldclim_training.csv \
+            --output-dir plethodon_cinereus_climate \
+            --gcms ACCESS-CM2 MIROC6 MRI-ESM2-0 \
+            --ssps ssp245 ssp585 \
+            --period 2061-2080
+
+      - name: Run six-scenario RangeShift analysis
+        run: |
+          python examples/case_studies/plethodon_cinereus/run_scenario_batch.py \
+            --climate-dir plethodon_cinereus_climate \
+            --output-dir plethodon_cinereus_scenario_runs
+
+      - name: Build flagship figure from real outputs
+        run: |
+          python examples/case_studies/plethodon_cinereus/make_flagship_figure.py \
+            --batch-dir plethodon_cinereus_scenario_runs \
+            --output case_study_artifacts/plethodon_cinereus_flagship.png
+
+      - name: Collect compact provenance and results
+        run: |
+          mkdir -p case_study_artifacts/results
+          cp real_ecology_output/provenance.json case_study_artifacts/results/gbif_worldclim_provenance.json
+          cp plethodon_cinereus_climate/climate_provenance.json case_study_artifacts/results/climate_provenance.json
+          cp plethodon_cinereus_scenario_runs/scenario_summary.csv case_study_artifacts/results/scenario_summary.csv
+          cp plethodon_cinereus_scenario_runs/scenario_manifest.json case_study_artifacts/results/scenario_manifest.json
+          cp plethodon_cinereus_scenario_runs/uncertainty/future_suitability_mean.tif case_study_artifacts/results/
+          cp plethodon_cinereus_scenario_runs/uncertainty/future_suitability_sd.tif case_study_artifacts/results/
+          cp plethodon_cinereus_scenario_runs/uncertainty/future_suitable_fraction.tif case_study_artifacts/results/
+
+      - name: Upload real case-study artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plethodon-cinereus-real-case-study
+          path: case_study_artifacts
+          if-no-files-found: error
+          retention-days: 30
