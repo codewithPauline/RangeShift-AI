@@ -274,7 +274,7 @@ Versioned wheel and source-distribution artifacts are attached to GitHub Release
 
 A real-data preparation workflow is included at [`examples/real_ecology/`](examples/real_ecology/README.md).
 
-By default it uses the spotted salamander, *Ambystoma maculatum*, and:
+By default it uses the eastern red-backed salamander, *Plethodon cinereus*, and:
 
 1. resolves the species using GBIF's current species matcher;
 2. retrieves georeferenced GBIF presence records;
@@ -285,7 +285,7 @@ By default it uses the spotted salamander, *Ambystoma maculatum*, and:
 
 ```bash
 python examples/real_ecology/prepare_gbif_worldclim.py \
-  --species "Ambystoma maculatum" \
+  --species "Plethodon cinereus" \
   --country US \
   --max-records 500 \
   --background 500 \
@@ -295,6 +295,32 @@ python examples/real_ecology/prepare_gbif_worldclim.py \
 Downloaded data are ignored by Git. The script is the reproducible artifact; large climate rasters and changing API search results are not frozen into repository history.
 
 > **Research-use note:** the example is designed for transparent demonstration, not as a universal publication-ready SDM protocol. Publication work should use a citable GBIF download DOI and justify taxonomic filters, background sampling, spatial thinning, predictor selection, and validation design.
+
+<!-- PLETHODON_CASE_STUDY -->
+## Real public case study: *Plethodon cinereus*
+
+RangeShift is exercised end to end on a reproducible public-data demonstration using
+**382 filtered GBIF presence records**, WorldClim 2.1 current climate, and six
+CMIP6 projections (ACCESS-CM2, MIROC6, and MRI-ESM2-0 × SSP245/SSP585; 2061–2080).
+The figure below is generated from the actual RangeShift outputs, not synthetic maps.
+
+![Real case-study outputs](docs/assets/plethodon_cinereus_case_study.png)
+
+Across the six supplied climate projections, the validated threshold was **0.53**.
+Current suitable area was approximately **393,955 km²**; projected suitable
+area ranged from **256,576 to 415,408 km²**, corresponding to
+**-34.9% to +5.4%** change from current suitability. Estimated
+suitable-range centroid shifts ranged from **397 to
+592 km**.
+
+These numbers describe this software demonstration under its stated occurrence sample,
+predictors, threshold, GCM/SSP set, and modeling assumptions. They are **not** presented as
+a species conservation forecast. See
+[`examples/case_studies/plethodon_cinereus/`](examples/case_studies/plethodon_cinereus/)
+for the workflow and compact provenance/results.
+<!-- /PLETHODON_CASE_STUDY -->
+
+
 
 ## Expected tabular input
 

@@ -1,0 +1,56 @@
+{
+  "interpretation": "Agreement is the fraction of supplied scenarios above the same validated suitability threshold. It is scenario spread, not a probability that the species will occupy a cell.",
+  "scenario_count": 6,
+  "scenario_summary": "plethodon_cinereus_scenario_runs/scenario_summary.csv",
+  "scenarios": {
+    "ACCESS-CM2_ssp245_2061-2080": {
+      "config_sha256": "ee4d20905cd1ce21541b408ff6530332f6c998e77ce994c6acc3050c0263ffb6",
+      "future_suitability": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp245_2061-2080/future_suitability_raw.tif",
+      "manifest": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp245_2061-2080/run_manifest.json",
+      "range_shift_classes": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp245_2061-2080/range_shift_classes.tif",
+      "range_shift_summary": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp245_2061-2080/range_shift_summary.json"
+    },
+    "ACCESS-CM2_ssp585_2061-2080": {
+      "config_sha256": "398ee8de9d4335bbed931d423867a3ef5438a8b5e117eea674f9fff37324fa42",
+      "future_suitability": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp585_2061-2080/future_suitability_raw.tif",
+      "manifest": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp585_2061-2080/run_manifest.json",
+      "range_shift_classes": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp585_2061-2080/range_shift_classes.tif",
+      "range_shift_summary": "plethodon_cinereus_scenario_runs/ACCESS-CM2_ssp585_2061-2080/range_shift_summary.json"
+    },
+    "MIROC6_ssp245_2061-2080": {
+      "config_sha256": "431497eed8ce081e9a5e687faff8c56cad55f4014ea56cfa28bfa0604d6a99e5",
+      "future_suitability": "plethodon_cinereus_scenario_runs/MIROC6_ssp245_2061-2080/future_suitability_raw.tif",
+      "manifest": "plethodon_cinereus_scenario_runs/MIROC6_ssp245_2061-2080/run_manifest.json",
+      "range_shift_classes": "plethodon_cinereus_scenario_runs/MIROC6_ssp245_2061-2080/range_shift_classes.tif",
+      "range_shift_summary": "plethodon_cinereus_scenario_runs/MIROC6_ssp245_2061-2080/range_shift_summary.json"
+    },
+    "MIROC6_ssp585_2061-2080": {
+      "config_sha256": "5ecf45363f79daab5d3e3fdbd936825735b530dbfcb31fcf6b1fb7af04dee32e",
+      "future_suitability": "plethodon_cinereus_scenario_runs/MIROC6_ssp585_2061-2080/future_suitability_raw.tif",
+      "manifest": "plethodon_cinereus_scenario_runs/MIROC6_ssp585_2061-2080/run_manifest.json",
+      "range_shift_classes": "plethodon_cinereus_scenario_runs/MIROC6_ssp585_2061-2080/range_shift_classes.tif",
+      "range_shift_summary": "plethodon_cinereus_scenario_runs/MIROC6_ssp585_2061-2080/range_shift_summary.json"
+    },
+    "MRI-ESM2-0_ssp245_2061-2080": {
+      "config_sha256": "992af26b037dacaece676bdbd949205af69941422ad2130d34c71f7a11358dcc",
+      "future_suitability": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp245_2061-2080/future_suitability_raw.tif",
+      "manifest": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp245_2061-2080/run_manifest.json",
+      "range_shift_classes": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp245_2061-2080/range_shift_classes.tif",
+      "range_shift_summary": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp245_2061-2080/range_shift_summary.json"
+    },
+    "MRI-ESM2-0_ssp585_2061-2080": {
+      "config_sha256": "7ebc9cba0117728b006bec3c1594d15267a1db26d98ac350bd3742551e0a17d7",
+      "future_suitability": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp585_2061-2080/future_suitability_raw.tif",
+      "manifest": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp585_2061-2080/run_manifest.json",
+      "range_shift_classes": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp585_2061-2080/range_shift_classes.tif",
+      "range_shift_summary": "plethodon_cinereus_scenario_runs/MRI-ESM2-0_ssp585_2061-2080/range_shift_summary.json"
+    }
+  },
+  "uncertainty": {
+    "mean_suitability": "plethodon_cinereus_scenario_runs/uncertainty/future_suitability_mean.tif",
+    "scenario_count": 6,
+    "suitability_sd": "plethodon_cinereus_scenario_runs/uncertainty/future_suitability_sd.tif",
+    "suitable_fraction": "plethodon_cinereus_scenario_runs/uncertainty/future_suitable_fraction.tif",
+    "threshold": 0.53
+  }
+}
