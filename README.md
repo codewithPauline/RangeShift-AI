@@ -18,7 +18,7 @@ The project is deliberately designed so ecological assumptions remain visible. R
 
 ## Project status
 
-**v0.9.0 release candidate — extends v0.8.0 with model-fit, bootstrap-raster and crossed model × climate uncertainty tools.**
+**v0.9.0 is published — model-fit, bootstrap-raster, and crossed model × climate uncertainty tools are included.**
 
 RangeShift now supports an end-to-end workflow from occurrence/environmental data to ecologically qualified, reproducible range-shift outputs:
 
@@ -305,6 +305,13 @@ CMIP6 projections (ACCESS-CM2, MIROC6, and MRI-ESM2-0 × SSP245/SSP585; 2061–2
 The figure below is generated from the actual RangeShift outputs, not synthetic maps.
 
 ![Real case-study outputs](docs/assets/plethodon_cinereus_case_study.png)
+
+### Model × climate uncertainty: verified public-data demonstration
+
+![Crossed model and climate uncertainty for Plethodon cinereus](docs/assets/plethodon_crossed_uncertainty.png)
+
+**Four panels:** mean modeled suitability, total score SD, between-scenario SD, and within-scenario model-fit SD across 12 spatial-block bootstrap model fits × 6 CMIP6 scenarios (72 projections; 7,740 common valid cells). These are **uncalibrated model-score summaries**, not occurrence probabilities, confidence intervals, or validated conservation forecasts. See the [reproducible case-study methods and interpretation](examples/case_studies/plethodon_cinereus/README.md). The reproducible figure is regenerated from the real GeoTIFF outputs by the public-data Actions workflow.
+
 
 Across the six supplied climate projections, the validated threshold was **0.53**.
 Current suitable area was approximately **393,955 km²**; projected suitable
