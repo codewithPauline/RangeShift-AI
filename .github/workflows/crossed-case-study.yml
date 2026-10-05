@@ -41,10 +41,7 @@ jobs:
             --output-dir plethodon_crossed_output --models 12 --trees 100
       - name: Render crossed-uncertainty figure and numerical summary
         run: |
-          python examples/case_studies/plethodon_cinereus/make_crossed_figure.py \\
-            --raster-dir plethodon_crossed_output/rasters \\
-            --figure plethodon_crossed_output/crossed_uncertainty.png \\
-            --summary plethodon_crossed_output/figure_statistics.json
+          python examples/case_studies/plethodon_cinereus/make_crossed_figure.py --raster-dir plethodon_crossed_output/rasters --figure plethodon_crossed_output/crossed_uncertainty.png --summary plethodon_crossed_output/figure_statistics.json
       - name: Upload uncertainty rasters and provenance
         uses: actions/upload-artifact@v4
         with:
