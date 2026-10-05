@@ -2,6 +2,7 @@
 
 from .background import BackgroundGenerationResult, generate_background_points
 from .bias import SamplingBiasResult, diagnose_sampling_bias
+from .bootstrap_raster import BootstrapRasterRun, run_bootstrap_raster_uncertainty
 from .calibration import (
     CalibrationResult,
     save_calibrated_model_bundle,
@@ -70,6 +71,7 @@ from .visualization import plot_range_shift_map, plot_spatial_split, plot_suitab
 
 __all__ = [
     "BackgroundGenerationResult",
+    "BootstrapRasterRun",
     "CalibrationResult",
     "CollinearityResult",
     "ConfigRunResult",
@@ -123,6 +125,7 @@ __all__ = [
     "plot_suitability_map",
     "predict_suitability_raster",
     "predict_suitability_raster_windowed",
+    "run_bootstrap_raster_uncertainty",
     "run_configured_analysis",
     "run_scenario_batch",
     "save_calibrated_model_bundle",
