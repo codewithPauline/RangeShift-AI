@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from rangeshift.model_raster_uncertainty import summarize_model_fit_rasters
