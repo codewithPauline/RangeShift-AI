@@ -28,14 +28,14 @@ from .explainability import (
 from .extrapolation import ExtrapolationResult, diagnose_extrapolation
 from .geospatial import ProjectedBlockResult, assign_projected_blocks, estimate_local_utm_epsg
 from .model import TrainingResult, train_habitat_model
-from .model_uncertainty import (
-    ResamplingUncertaintyResult,
-    evaluate_model_resampling_uncertainty,
-)
 from .model_selection import (
     ModelSelectionResult,
     save_selected_model_bundle,
     tune_and_compare_models,
+)
+from .model_uncertainty import (
+    ResamplingUncertaintyResult,
+    evaluate_model_resampling_uncertainty,
 )
 from .novelty import NovelClimateResult, diagnose_novel_climate
 from .range_shift import RangeShiftResult, compare_suitability_rasters
