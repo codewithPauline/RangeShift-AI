@@ -45,7 +45,7 @@ def run_case_study(
     # Resampling whole geographic blocks preserves records within each block.
     lon = np.floor((frame["longitude"].to_numpy() + 180) / block_degrees).astype(int)
     lat = np.floor((frame["latitude"].to_numpy() + 90) / block_degrees).astype(int)
-    labels = list(zip(lon.tolist(), lat.tolist()))
+    labels = list(zip(lon.tolist(), lat.tolist(), strict=True))
     unique = sorted(set(labels))
     if len(unique) < 2:
         raise ValueError("Need two or more occupied spatial blocks.")
