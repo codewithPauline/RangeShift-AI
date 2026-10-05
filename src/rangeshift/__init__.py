@@ -28,6 +28,10 @@ from .explainability import (
 from .extrapolation import ExtrapolationResult, diagnose_extrapolation
 from .geospatial import ProjectedBlockResult, assign_projected_blocks, estimate_local_utm_epsg
 from .model import TrainingResult, train_habitat_model
+from .model_raster_uncertainty import (
+    ModelRasterUncertaintyResult,
+    summarize_model_fit_rasters,
+)
 from .model_selection import (
     ModelSelectionResult,
     save_selected_model_bundle,
@@ -71,6 +75,7 @@ __all__ = [
     "ConfigRunResult",
     "DispersalConstraintResult",
     "ExtrapolationResult",
+    "ModelRasterUncertaintyResult",
     "ModelSelectionResult",
     "NovelClimateResult",
     "ProjectedBlockResult",
@@ -125,6 +130,7 @@ __all__ = [
     "select_threshold",
     "shap_importance_table",
     "spatial_cross_validate",
+    "summarize_model_fit_rasters",
     "summarize_suitability_scenarios",
     "thin_spatial_points",
     "train_calibrated_habitat_model",
