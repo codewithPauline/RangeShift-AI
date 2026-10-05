@@ -1,0 +1,76 @@
+name: Independent published-release smoke test
+
+on:
+  push:
+    branches: [test/independent-release-install]
+    paths:
+      - ".github/workflows/independent-release-smoke.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/independent-release-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  published-release:
+    name: Published v0.9.0 wheel, isolated install and CLI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Set up Python without repository checkout
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install only the published GitHub wheel
+        shell: bash
+        run: |
+          python -m venv /tmp/rangeshift-external
+          /tmp/rangeshift-external/bin/python -m pip install --upgrade pip
+          /tmp/rangeshift-external/bin/python -m pip install \
+            https://github.com/codewithPauline/RangeShift-AI/releases/download/v0.9.0/rangeshift_ai-0.9.0-py3-none-any.whl
+      - name: Run from outside repository with no developer dependencies
+        shell: bash
+        working-directory: /tmp
+        run: |
+          set -euo pipefail
+          PY=/tmp/rangeshift-external/bin/python
+          CLI=/tmp/rangeshift-external/bin/rangeshift
+          "$PY" - <<'PY'
+          import numpy as np
+          import pandas as pd
+          import rangeshift
+
+          assert rangeshift.__version__ == "0.9.0"
+          rng = np.random.default_rng(142)
+          n = 160
+          y = np.array([0, 1] * (n // 2))
+          pd.DataFrame({
+              "presence": y,
+              "bio1": rng.normal(loc=5 + y * 2, scale=1.5, size=n),
+              "bio12": rng.normal(loc=500 + y * 100, scale=60, size=n),
+          }).to_csv("/tmp/external_training.csv", index=False)
+          PY
+          "$CLI" --help > /tmp/rangeshift_cli_help.txt
+          "$CLI" train /tmp/external_training.csv \
+            --features bio1 bio12 --trees 25 --seed 142 \
+            --output /tmp/external_model.joblib
+          test -s /tmp/external_model.joblib
+          "$CLI" predict /tmp/external_model.joblib /tmp/external_training.csv \
+            --output /tmp/external_predictions.csv
+          "$PY" - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          frame = pd.read_csv("/tmp/external_predictions.csv")
+          assert len(frame) == 160, len(frame)
+          assert "suitability" in frame.columns, frame.columns.tolist()
+          assert frame["suitability"].between(0, 1).all()
+          assert Path("/tmp/rangeshift_cli_help.txt").stat().st_size > 20
+          print("PASS: published release installed and trained/predicted outside repo")
+          PY
