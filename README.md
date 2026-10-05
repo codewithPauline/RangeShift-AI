@@ -587,7 +587,7 @@ A separate release workflow builds the distributions again and attaches them to 
 
 ## Next milestone — toward v1.0
 
-The six-phase public roadmap is complete. The next work is **hardening rather than checkbox expansion**: uncertainty summaries across resamples/models/scenarios, batch climate-model/SSP comparison, richer provenance embedded in outputs, additional ecological case studies, performance profiling, API stabilization, documentation hardening, and broader external validation before a v1.0 release.
+The six-phase public roadmap is complete. The next work is **hardening rather than checkbox expansion**: uncertainty summaries across model fits/resamples, broader climate-model/SSP coverage beyond the implemented scenario batch workflow, richer provenance embedded in outputs, additional independent ecological case studies, performance profiling, API stabilization, documentation hardening, and broader external validation before a v1.0 release.
 
 ## Design principles
 
@@ -601,7 +601,7 @@ The six-phase public roadmap is complete. The next work is **hardening rather th
 
 If RangeShift AI contributes to an analysis, please cite the **exact software version used**. For the current release:
 
-> Owusu-Ansah, P. (2026). *RangeShift AI* (Version 0.7.0) [Computer software]. GitHub. https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.7.0
+> Owusu-Ansah, P. (2026). *RangeShift AI* (Version 0.8.0) [Computer software]. GitHub. https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0
 
 BibTeX:
 
@@ -610,8 +610,8 @@ BibTeX:
   author  = {Owusu-Ansah, Pauline},
   title   = {RangeShift AI},
   year    = {2026},
-  version = {0.7.0},
-  url     = {https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.7.0}
+  version = {0.8.0},
+  url     = {https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0}
 }
 ```
 

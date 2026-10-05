@@ -139,7 +139,7 @@ Implemented:
 
 - reproducible GBIF occurrence retrieval;
 - current GBIF species-name matching;
-- default *Ambystoma maculatum* example;
+- original v0.6 demonstration used *Ambystoma maculatum*; the current public example uses *Plethodon cinereus* (distinct from the author's manuscript taxa);
 - WorldClim 2.1 BIO1, BIO12, and BIO15 preparation;
 - climate extraction at presence records;
 - climate-valid background sampling;
