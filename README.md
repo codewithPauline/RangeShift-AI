@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Released · CI tested · Installable · MIT licensed**  
-**Latest release:** [`v0.8.0`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0) — download the tested Python wheel or source distribution from the release page.
+**Latest published release:** [`v0.8.0`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0). **v0.9.0 is a release candidate**, pending the GitHub release and archival DOI.
 
 ## Why RangeShift AI?
 
@@ -18,7 +18,7 @@ The project is deliberately designed so ecological assumptions remain visible. R
 
 ## Project status
 
-**v0.8.0 — Phases 1–6 of the public roadmap are complete and covered by automated validation.**
+**v0.9.0 release candidate — extends v0.8.0 with model-fit, bootstrap-raster and crossed model × climate uncertainty tools.**
 
 RangeShift now supports an end-to-end workflow from occurrence/environmental data to ecologically qualified, reproducible range-shift outputs:
 
@@ -587,7 +587,7 @@ A separate release workflow builds the distributions again and attaches them to 
 
 ## Next milestone — toward v1.0
 
-The six-phase public roadmap is complete. The next work is **hardening rather than checkbox expansion**: uncertainty summaries across model fits/resamples, broader climate-model/SSP coverage beyond the implemented scenario batch workflow, richer provenance embedded in outputs, additional independent ecological case studies, performance profiling, API stabilization, documentation hardening, and broader external validation before a v1.0 release.
+The six-phase public roadmap is complete. The next work is **hardening rather than checkbox expansion**: more independent model and climate validation, broader climate-model/SSP coverage beyond the implemented scenario batch workflow, richer provenance embedded in outputs, additional independent ecological case studies, performance profiling, API stabilization, documentation hardening, and broader external validation before a v1.0 release.
 
 ## Design principles
 
@@ -599,7 +599,7 @@ The six-phase public roadmap is complete. The next work is **hardening rather th
 
 ## Citation
 
-If RangeShift AI contributes to an analysis, please cite the **exact software version used**. For the current release:
+If RangeShift AI contributes to an analysis, please cite the **exact software version used**. For the latest **published** release (v0.8.0), cite:
 
 > Owusu-Ansah, P. (2026). *RangeShift AI* (Version 0.8.0) [Computer software]. GitHub. https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0
 
@@ -615,7 +615,7 @@ BibTeX:
 }
 ```
 
-A machine-readable [`CITATION.cff`](CITATION.cff) is included so GitHub can generate citation formats through **Cite this repository**. A DOI has not yet been assigned; until an archival DOI is created, use the version-specific GitHub release URL above.
+The development `CITATION.cff` on this release-candidate branch describes v0.9.0; **cite v0.8.0 only when using the published v0.8.0 artifact**, or cite the exact newer release when published. A machine-readable [`CITATION.cff`](CITATION.cff) is included so GitHub can generate citation formats through **Cite this repository**. A DOI has not yet been assigned; until an archival DOI is created, use the version-specific GitHub release URL above.
 
 ## Author
 
