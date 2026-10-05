@@ -30,6 +30,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install build twine
 
+      - name: Check source, package, and citation versions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tomllib
+          version = tomllib.loads(Path("pyproject.toml").read_text())["project"]["version"]
+          runtime = Path("src/rangeshift/__init__.py").read_text()
+          citation = Path("CITATION.cff").read_text()
+          assert ('__version__ = "' + version + '"') in runtime
+          assert ("version: " + version) in citation
+          PY
+
+      - name: Run geospatial regression suite before release
+        run: |
+          python -m pip install -e ".[geo,dev]"
+          ruff check .
+          pytest -q
+
       - name: Build wheel and source distribution
         run: python -m build
 
