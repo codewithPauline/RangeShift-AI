@@ -20,6 +20,7 @@ from .climate import (
 )
 from .collinearity import CollinearityResult, diagnose_collinearity
 from .config import ConfigRunResult, RunConfig, load_run_config, run_configured_analysis
+from .crossed_uncertainty import CrossedUncertaintyResult, summarize_crossed_uncertainty
 from .dispersal import DispersalConstraintResult, apply_dispersal_constraint
 from .explainability import (
     partial_dependence_table,
@@ -75,6 +76,7 @@ __all__ = [
     "CalibrationResult",
     "CollinearityResult",
     "ConfigRunResult",
+    "CrossedUncertaintyResult",
     "DispersalConstraintResult",
     "ExtrapolationResult",
     "ModelRasterUncertaintyResult",
@@ -133,6 +135,7 @@ __all__ = [
     "select_threshold",
     "shap_importance_table",
     "spatial_cross_validate",
+    "summarize_crossed_uncertainty",
     "summarize_model_fit_rasters",
     "summarize_suitability_scenarios",
     "thin_spatial_points",

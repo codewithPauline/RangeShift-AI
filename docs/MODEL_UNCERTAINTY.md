@@ -47,3 +47,26 @@ print(outputs.raster.sd_path)
 ```
 
 Use spatial groups for geographically structured samples; these must be specified by the researcher before bootstrap fitting. This workflow fits class-balanced Random Forests without an extra calibration step, so the resulting scores should not be interpreted as empirically calibrated occupancy probabilities. The optional shared threshold must have been selected on a **separate validation set**; do not tune it on the projected raster. The manifest records seed, predictor order, bootstrap sizes and raster paths but does **not** snapshot the original data files or save fitted models. Compare the same input grid across resamples for meaningful variation.
+
+## Crossed climate × fitted-model uncertainty
+
+Use `summarize_crossed_uncertainty(models, scenarios, output_dir, threshold=...)` when **the same independently fitted models are projected to every supplied climate scenario**. `models` are the same `{"model": estimator, "feature_columns": [...]}` bundles accepted by `summarize_model_fit_rasters`; `scenarios` maps each scenario name to its aligned predictor rasters.
+
+Outputs are cellwise mean, total standard deviation, climate-scenario component SD, model-fit component SD, and optional fraction above a separately validated shared threshold. For an equally weighted full factorial, **total variance = variance among scenario mean predictions + average within-scenario variance among model predictions**. The model SD is the square root of the average within-scenario *population* variance, not the sample SD used in the single-scenario raster API. All output rasters use the common valid pixel intersection; unequal coverage must not masquerade as model disagreement. An equal-weighted GCM × SSP ensemble is not a probability distribution over future climates; threshold agreement is not occurrence probability.
+
+```python
+from rangeshift import summarize_crossed_uncertainty
+
+result = summarize_crossed_uncertainty(
+    fitted_bootstrap_bundles,
+    {
+        "ssp245_model_a": {"bio1": "scenario_a_bio1.tif"},
+        "ssp585_model_a": {"bio1": "scenario_b_bio1.tif"},
+    },
+    "outputs/crossed",
+    threshold=validated_threshold,
+)
+print(result.scenario_sd_path, result.model_sd_path)
+```
+
+This function **does not fit** the bootstrap models or generate climate predictors; those remain explicit upstream inputs. It does not infer independence among GCMs, calibrate models, or supply inferential confidence intervals.
