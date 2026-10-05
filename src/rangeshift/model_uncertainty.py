@@ -78,10 +78,13 @@ def evaluate_model_resampling_uncertainty(
     probabilities: list[np.ndarray] = []
     metrics: list[dict[str, float | int]] = []
     for replicate in range(n_resamples):
-        for attempt in range(100):
+        for _attempt in range(100):
             if group_labels is None:
                 indices = np.concatenate(
-                    [rng.choice(rows, size=len(rows), replace=True) for rows in class_indices.values()]
+                    [
+                        rng.choice(rows, size=len(rows), replace=True)
+                        for rows in class_indices.values()
+                    ]
                 )
             else:
                 chosen = rng.choice(unique_groups, size=len(unique_groups), replace=True)
