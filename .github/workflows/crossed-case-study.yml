@@ -3,13 +3,13 @@ name: Crossed Plethodon case study
 on:
   workflow_dispatch:
   push:
-    branches: [feature/crossed-figure-and-report]
+    branches: [feature/permanent-crossed-figure]
     paths:
       - ".github/workflows/crossed-case-study.yml"
       - "examples/case_studies/plethodon_cinereus/make_crossed_figure.py"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   crossed-plethodon:
@@ -42,6 +42,18 @@ jobs:
       - name: Render crossed-uncertainty figure and numerical summary
         run: |
           python examples/case_studies/plethodon_cinereus/make_crossed_figure.py --raster-dir plethodon_crossed_output/rasters --figure plethodon_crossed_output/crossed_uncertainty.png --summary plethodon_crossed_output/figure_statistics.json
+      - name: Commit permanent public-case-study PNG to feature branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feature/permanent-crossed-figure'
+        run: |
+          mkdir -p docs/assets
+          cp plethodon_crossed_output/crossed_uncertainty.png docs/assets/plethodon_crossed_uncertainty.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/assets/plethodon_crossed_uncertainty.png
+          if ! git diff --cached --quiet; then
+            git commit -m "Add verified public-data crossed uncertainty PNG"
+            git push
+          fi
       - name: Upload uncertainty rasters and provenance
         uses: actions/upload-artifact@v4
         with:
