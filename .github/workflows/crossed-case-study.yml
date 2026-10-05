@@ -1,0 +1,51 @@
+name: Crossed Plethodon case study
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/plethodon-crossed-case-study]
+    paths:
+      - ".github/workflows/crossed-case-study.yml"
+      - "examples/case_studies/plethodon_cinereus/run_crossed_uncertainty.py"
+
+permissions:
+  contents: read
+
+jobs:
+  crossed-plethodon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e ".[geo]"
+      - name: Retrieve public GBIF and WorldClim source data
+        run: |
+          python examples/real_ecology/prepare_gbif_worldclim.py \
+            --species "Plethodon cinereus" --country US --max-records 400 \
+            --background 400 --seed 42 --output-dir real_ecology_output
+      - name: Prepare six aligned WorldClim CMIP6 futures
+        run: |
+          python examples/case_studies/plethodon_cinereus/prepare_climate_scenarios.py \
+            --training-csv real_ecology_output/gbif_worldclim_training.csv \
+            --output-dir plethodon_cinereus_climate \
+            --gcms ACCESS-CM2 MIROC6 MRI-ESM2-0 \
+            --ssps ssp245 ssp585 --period 2061-2080
+      - name: Run full crossed ensemble
+        run: |
+          python examples/case_studies/plethodon_cinereus/run_crossed_uncertainty.py \
+            --training-csv real_ecology_output/gbif_worldclim_training.csv \
+            --scenario-json plethodon_cinereus_climate/scenario_layers.json \
+            --output-dir plethodon_crossed_output --models 12 --trees 100
+      - name: Upload uncertainty rasters and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: plethodon-crossed-model-climate-uncertainty
+          path: |
+            plethodon_crossed_output/
+            real_ecology_output/provenance.json
+            plethodon_cinereus_climate/climate_provenance.json
+          if-no-files-found: error
+          retention-days: 30
