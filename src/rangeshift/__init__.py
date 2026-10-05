@@ -33,6 +33,10 @@ from .model_selection import (
     save_selected_model_bundle,
     tune_and_compare_models,
 )
+from .model_raster_uncertainty import (
+    ModelRasterUncertaintyResult,
+    summarize_model_fit_rasters,
+)
 from .model_uncertainty import (
     ResamplingUncertaintyResult,
     evaluate_model_resampling_uncertainty,
@@ -71,6 +75,7 @@ __all__ = [
     "ConfigRunResult",
     "DispersalConstraintResult",
     "ExtrapolationResult",
+    "ModelRasterUncertaintyResult",
     "ModelSelectionResult",
     "NovelClimateResult",
     "ProjectedBlockResult",
@@ -125,6 +130,7 @@ __all__ = [
     "select_threshold",
     "shap_importance_table",
     "spatial_cross_validate",
+    "summarize_model_fit_rasters",
     "summarize_suitability_scenarios",
     "thin_spatial_points",
     "train_calibrated_habitat_model",
