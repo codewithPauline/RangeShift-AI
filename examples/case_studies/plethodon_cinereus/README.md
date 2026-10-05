@@ -200,3 +200,59 @@ A compact summary should report current and future suitable area, gained and los
 This is a reproducible software demonstration, not a substitute for a species-specific conservation assessment. Results depend on the occurrence sample, background design, predictor choice, validation scheme, climate scenario set, threshold, transferability, environmental novelty, and dispersal assumptions.
 
 For publication-grade use, occurrence data should be archived through a citable GBIF download DOI rather than relying only on live API retrieval.
+
+## Crossed model × climate uncertainty: verified public-data demonstration
+
+The post-v0.8 development workflow now combines **12 spatial-block bootstrap
+Random Forest fits** with the six CMIP6 future scenarios above, yielding **72
+model–scenario score predictions per common valid grid cell**. The run uses
+a 1° geographic block bootstrap, 100 trees per fit, fixed seed 42, and
+*uncalibrated* scores; it does not replace the independently calibrated v0.8
+case-study pipeline. The current example intentionally does **not** apply a
+suitability threshold, because none was validated for these separate fits.
+
+A successfully completed GitHub Actions run generated four GeoTIFFs and
+a provenance manifest over **7,740 common valid cells**. Descriptive
+cellwise summaries from that run are:
+
+| Output | Mean across valid cells | Interpretation |
+| --- | ---: | --- |
+| Mean modeled score | 0.2613 | Mean of all model × climate combinations |
+| Total score SD | 0.1325 | Entire crossed ensemble |
+| Scenario component SD | 0.0848 | Differences between scenario means |
+| Model-fit component SD | 0.0975 | Average within-scenario fit variance, square-rooted |
+
+**These averages cannot be used as an additive variance decomposition.**
+The underlying identity holds **within each cell, on the variance scale**:
+total variance = between-scenario variance + mean within-scenario model
+variance. Likewise, comparing the two spatially averaged SDs is not a
+formal attribution of forecast uncertainty. The sampled GCM–SSP set is
+equally weighted for demonstration, not weighted by its probability.
+
+The geographically structured score variation visible in the results is
+conditional on public occurrence filtering, coarse WorldClim 10-minute
+predictors, selected models, spatial blocks, and six scenarios. It must not
+be interpreted as a validated forecast of realized distribution, a
+species-occupancy probability, or a conservation assessment.
+
+### Fully automated reproduction
+
+The
+[Crossed Plethodon case-study workflow](../../../.github/workflows/crossed-case-study.yml)
+prepares public GBIF/WorldClim inputs, fits all models, projects the
+crossed ensemble, generates a four-panel PNG **from the computed rasters**,
+writes a machine-readable numerical summary, and uploads the figure,
+GeoTIFFs, and provenance as one GitHub Actions artifact.
+
+The workflow runs automatically for relevant development-branch changes;
+after merging, it can also be launched from GitHub Actions with
+**Run workflow** if the source data need refreshing. Its artifacts expire
+after 30 days; numerical claims in the repository reflect the verified
+run documented above, not live source updates. Software-only CI checks
+use small synthetic fixtures and do not substitute for this external-data
+execution.
+
+The four panels are: (A) mean score; (B) total SD; (C) scenario SD;
+(D) model-fit SD, using matched color ranges across SD panels. The
+reproducible renderer is
+[`make_crossed_figure.py`](make_crossed_figure.py).

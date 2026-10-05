@@ -3,10 +3,10 @@ name: Crossed Plethodon case study
 on:
   workflow_dispatch:
   push:
-    branches: [feature/plethodon-crossed-case-study]
+    branches: [feature/crossed-figure-and-report]
     paths:
       - ".github/workflows/crossed-case-study.yml"
-      - "examples/case_studies/plethodon_cinereus/run_crossed_uncertainty.py"
+      - "examples/case_studies/plethodon_cinereus/make_crossed_figure.py"
 
 permissions:
   contents: read
@@ -39,6 +39,9 @@ jobs:
             --training-csv real_ecology_output/gbif_worldclim_training.csv \
             --scenario-json plethodon_cinereus_climate/scenario_layers.json \
             --output-dir plethodon_crossed_output --models 12 --trees 100
+      - name: Render crossed-uncertainty figure and numerical summary
+        run: |
+          python examples/case_studies/plethodon_cinereus/make_crossed_figure.py --raster-dir plethodon_crossed_output/rasters --figure plethodon_crossed_output/crossed_uncertainty.png --summary plethodon_crossed_output/figure_statistics.json
       - name: Upload uncertainty rasters and provenance
         uses: actions/upload-artifact@v4
         with:
