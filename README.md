@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Released · CI tested · Installable · MIT licensed**  
-**Latest published release:** [`v0.8.0`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0). **v0.9.0 is a release candidate**, pending the GitHub release and archival DOI.
+**Latest published release:** [`v0.9.0`](https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.9.0) — tested Python wheel and source distribution available. Zenodo DOI is pending.
 
 ## Why RangeShift AI?
 
@@ -599,9 +599,9 @@ The six-phase public roadmap is complete. The next work is **hardening rather th
 
 ## Citation
 
-If RangeShift AI contributes to an analysis, please cite the **exact software version used**. For the latest **published** release (v0.8.0), cite:
+If RangeShift AI contributes to an analysis, please cite the **exact software version used**. For the latest **published** release (v0.9.0), cite:
 
-> Owusu-Ansah, P. (2026). *RangeShift AI* (Version 0.8.0) [Computer software]. GitHub. https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0
+> Owusu-Ansah, P. (2026). *RangeShift AI* (Version 0.9.0) [Computer software]. GitHub. https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.9.0
 
 BibTeX:
 
@@ -610,12 +610,12 @@ BibTeX:
   author  = {Owusu-Ansah, Pauline},
   title   = {RangeShift AI},
   year    = {2026},
-  version = {0.8.0},
-  url     = {https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.8.0}
+  version = {0.9.0},
+  url     = {https://github.com/codewithPauline/RangeShift-AI/releases/tag/v0.9.0}
 }
 ```
 
-The development `CITATION.cff` on this release-candidate branch describes v0.9.0; **cite v0.8.0 only when using the published v0.8.0 artifact**, or cite the exact newer release when published. A machine-readable [`CITATION.cff`](CITATION.cff) is included so GitHub can generate citation formats through **Cite this repository**. A DOI has not yet been assigned; until an archival DOI is created, use the version-specific GitHub release URL above.
+A machine-readable [`CITATION.cff`](CITATION.cff) is included so GitHub can generate citation formats through **Cite this repository**. A DOI has not yet been assigned; until an archival DOI is created, use the version-specific GitHub release URL above.
 
 ## Author
 

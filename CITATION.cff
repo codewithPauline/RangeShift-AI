@@ -3,6 +3,7 @@ message: "If you use RangeShift AI in research, please cite the exact software v
 type: software
 title: "RangeShift AI"
 version: 0.9.0
+date-released: 2026-10-05
 license: MIT
 authors:
   - family-names: "Owusu-Ansah"
