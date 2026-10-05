@@ -33,6 +33,10 @@ from .model_selection import (
     save_selected_model_bundle,
     tune_and_compare_models,
 )
+from .model_uncertainty import (
+    ResamplingUncertaintyResult,
+    evaluate_model_resampling_uncertainty,
+)
 from .novelty import NovelClimateResult, diagnose_novel_climate
 from .range_shift import RangeShiftResult, compare_suitability_rasters
 from .raster import (
@@ -73,6 +77,7 @@ __all__ = [
     "RangeShiftResult",
     "RasterPredictionResult",
     "RasterStack",
+    "ResamplingUncertaintyResult",
     "RunConfig",
     "SamplingBiasResult",
     "ScenarioBatchResult",
@@ -100,6 +105,7 @@ __all__ = [
     "diagnose_sampling_bias",
     "estimate_local_utm_epsg",
     "evaluate_spatial_holdout",
+    "evaluate_model_resampling_uncertainty",
     "evaluate_thresholds",
     "extract_bioclim_bands_to_reference",
     "generate_background_points",
@@ -127,4 +133,4 @@ __all__ = [
     "validate_aligned_rasters",
     "worldclim_cmip6_bioc_url",
 ]
-__version__ = "0.7.0"
+__version__ = "0.8.0"
